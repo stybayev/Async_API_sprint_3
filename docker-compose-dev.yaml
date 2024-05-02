@@ -82,4 +82,3 @@ volumes:
   elastic-data:
   films-cache:
   pg-cache:
-

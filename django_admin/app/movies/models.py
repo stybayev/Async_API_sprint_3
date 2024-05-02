@@ -40,7 +40,7 @@ class Filmwork(UUIDMixin, TimeStampledMixin):
         MOVIE = "movie", _("MOVIE")
 
     title = models.CharField(max_length=255, blank=False, null=False)
-    description = models.TextField(_("description"))
+    description = models.TextField(_("description"), null=True)
     creation_date = models.DateField(_("creation date"))
     rating = models.FloatField(
         "rating", validators=[MinValueValidator(0), MaxValueValidator(100)]

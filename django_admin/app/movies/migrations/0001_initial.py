@@ -28,7 +28,7 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 ("title", models.CharField(max_length=255)),
-                ("description", models.TextField(verbose_name="description")),
+                ("description", models.TextField(verbose_name="description", null=True)),
                 ("creation_date", models.DateField(verbose_name="creation date")),
                 (
                     "rating",
@@ -38,6 +38,7 @@ class Migration(migrations.Migration):
                             django.core.validators.MaxValueValidator(100),
                         ],
                         verbose_name="rating",
+                        null = True,
                     ),
                 ),
                 (
@@ -72,7 +73,7 @@ class Migration(migrations.Migration):
                 ("name", models.CharField(max_length=255, verbose_name="name")),
                 (
                     "description",
-                    models.TextField(blank=True, verbose_name="description"),
+                    models.TextField(blank=True, verbose_name="description", null=True),
                 ),
             ],
             options={
