@@ -20,6 +20,7 @@ RUN apt-get update && apt-get install netcat-traditional && python -m pip instal
 COPY app/ .
 
 RUN chmod +x docker-entrypoint.sh  && mkdir /opt/app/static
+RUN apt-get install nano
 
 
 EXPOSE 8000
@@ -27,5 +28,5 @@ EXPOSE 8000
 VOLUME /opt/app/static
 RUN chown -R django:django /opt/app/static
 
-USER django
+#USER django
 ENTRYPOINT ["/opt/app/docker-entrypoint.sh"]

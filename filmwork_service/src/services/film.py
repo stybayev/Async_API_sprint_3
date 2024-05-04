@@ -33,24 +33,28 @@ class FilmService:
         return films[offset_min:offset_max]
 
     async def search_film(
-        self, id_film: UUID, title: str, page, size
+            self, search_string: str, page, size
     ) -> list[Films] | None:
         docs = []
         offset_min = (page - 1) * size
         offset_max = page * size
-        if id_film:
-            film = await self.get_by_id(id_film)
-            if film:
-                docs.append(Films(**film.__dict__, size=size, page=page))
-                return docs
-            return []
-        if title:
+        # if id_film:
+        #     film = await self.get_by_id(id_film)
+        #     if film:
+        #         docs.append(Films(**film.__dict__, size=size, page=page))
+        #         return docs
+        #     return []
+        if search_string:
             body_query = {
-                "query": {"match": {"title": {"query": title, "operator": "and"}}}
+                "query": {
+                    "query_string": {
+                        "query": search_string
+                    }
+                }
             }
 
             async for doc in async_scan(
-                client=self.elastic, query=body_query, index="movies"
+                    client=self.elastic, query=body_query, index="movies"
             ):
                 doc["_source"]["page"] = page
                 doc["_source"]["size"] = size
@@ -89,7 +93,7 @@ class FilmService:
                 )
         docs = []
         async for doc in async_scan(
-            client=self.elastic, query=body_query, index="movies", preserve_order=True
+                client=self.elastic, query=body_query, index="movies", preserve_order=True
         ):
             doc["_source"]["page"] = page
             doc["_source"]["size"] = size

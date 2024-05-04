@@ -57,13 +57,12 @@ async def film_details(
     response_description="Информация о кинопроизведении",
 )
 async def search_films(
-    id_film: UUID = None,
-    title: str = None,
+    search_string: str = None,
     film_service: FilmService = Depends(get_film_service),
     page: int = Query(ge=1, default=1),
     size: int = Query(ge=1, le=100, default=40),
 ) -> list[Films]:
-    films = await film_service.search_film(id_film, title, page, size)
+    films = await film_service.search_film(search_string, page, size)
     if not films:
         return list()
     return films
