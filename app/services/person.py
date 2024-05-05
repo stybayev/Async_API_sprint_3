@@ -12,6 +12,7 @@ from app.db.redis import get_redis
 from app.models.persons import BasePersonModel
 from app.models.film import Films
 from app.services.base import BaseService
+from uuid import UUID
 
 FILM_CACHE_EXPIRE_IN_SECONDS = 60 * 5  # 5 минут
 
@@ -22,7 +23,7 @@ class PersonsService(BaseService):
         self.model = BasePersonModel
         self.index_name = "persons"
 
-    async def _person_from_cache(self, person_id: str) -> BasePersonModel | None:
+    async def _person_from_cache(self, person_id: UUID) -> BasePersonModel | None:
         data = await self.redis.get(person_id)
         if not data:
             return None
@@ -33,7 +34,7 @@ class PersonsService(BaseService):
     async def _put_person_to_cache(self, person: BasePersonModel):
         await self.redis.set(person.id, person.json(), FILM_CACHE_EXPIRE_IN_SECONDS)
 
-    async def get_films(self, person_id: str,
+    async def get_films(self, person_id: UUID,
                         page_size: int = 10,
                         page_number: int = 1) -> List[Films]:
 
@@ -43,31 +44,13 @@ class PersonsService(BaseService):
                 "bool": {
                     "should": [
                         {
-                            "nested": {
-                                "path": "actors",
-                                "query": {
-                                    "bool": {
-                                        "must": [
-                                            {"match": {"actors.id": person_id}}
-                                        ]
-                                    }
-                                }
-                            }
+                            "match": {"director.id": str(person_id)}
                         },
                         {
-                            "nested": {
-                                "path": "writers",
-                                "query": {
-                                    "bool": {
-                                        "must": [
-                                            {"match": {"writers.id": person_id}}
-                                        ]
-                                    }
-                                }
-                            }
+                            "match": {"actors.id": str(person_id)}
                         },
                         {
-                            "match": {"director.id": person_id}
+                            "match": {"writers.id": str(person_id)}
                         }
                     ]
                 }
@@ -80,6 +63,7 @@ class PersonsService(BaseService):
             response = await self.elastic.search(index='movies', body=query_body)
         except Exception as e:
             logging.error(f"Failed to fetch persons from Elasticsearch: {e}")
+            logging.error(query_body)
             return []
 
         films = []

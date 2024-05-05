@@ -6,6 +6,7 @@ from elasticsearch.exceptions import NotFoundError
 from redis.asyncio import Redis
 
 from app.models.base_model import BaseMixin
+from uuid import UUID
 
 
 class BaseService:
@@ -16,7 +17,7 @@ class BaseService:
         self.cache_timeout = 60 * 5  # 5 минут
         self.model = BaseMixin
 
-    async def get_by_id(self, _id: str) -> BaseMixin | None:
+    async def get_by_id(self, _id: UUID) -> BaseMixin | None:
         # Пытаемся получить данные из кеша, потому что оно работает быстрее
         entity = await self._entity_from_cache(_id=_id)
         if not entity:
@@ -30,14 +31,14 @@ class BaseService:
 
         return entity
 
-    async def _get_entity_from_elastic(self, _id: str) -> BaseMixin | None:
+    async def _get_entity_from_elastic(self, _id: UUID) -> BaseMixin | None:
         try:
             doc = await self.elastic.get(index=self.index_name, id=_id)
         except NotFoundError:
             return None
         return self.model(**doc["_source"])
 
-    async def _entity_from_cache(self, _id: str) -> BaseMixin | None:
+    async def _entity_from_cache(self, _id: UUID) -> BaseMixin | None:
         data = await self.redis.get(f"{self.index_name}:{_id}")
         if not data:
             return None

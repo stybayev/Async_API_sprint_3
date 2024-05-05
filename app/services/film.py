@@ -8,6 +8,7 @@ from app.db.elastic import get_elastic
 from app.db.redis import get_redis
 from app.models.film import Film, Films
 from app.services.base import BaseService
+from uuid import UUID
 
 FILM_CACHE_EXPIRE_IN_SECONDS = 60 * 5  # 5 минут
 
@@ -18,7 +19,7 @@ class FilmService(BaseService):
         self.model = Film
         self.index_name = "movies"
 
-    async def get_by_id(self, film_id: str) -> Film | None:
+    async def get_by_id(self, film_id: UUID) -> Film | None:
         """
         Получить фильм по id
         :param film_id:
@@ -38,7 +39,7 @@ class FilmService(BaseService):
 
         return film
 
-    async def _get_film_from_elastic(self, film_id: str) -> Film | None:
+    async def _get_film_from_elastic(self, film_id: UUID) -> Film | None:
         try:
             doc = await self.elastic.get(index="movies", id=film_id)
         except NotFoundError:
@@ -74,7 +75,7 @@ class FilmService(BaseService):
             logging.error(e)
             return None
 
-    async def _film_from_cache(self, film_id: str) -> Film | None:
+    async def _film_from_cache(self, film_id: UUID) -> Film | None:
         # Пытаемся получить данные о фильме из кеша, используя команду get
         # https://redis.io/commands/get/
         data = await self.redis.get(film_id)

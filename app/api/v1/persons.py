@@ -3,13 +3,14 @@ from fastapi import APIRouter, Depends, Query, Path
 from app.models.persons import BasePersonModel
 from app.models.film import Films
 from app.services.person import get_person_service, PersonsService
+from uuid import UUID
 
 router = APIRouter()
 
 
 @router.get("/{person_id}", response_model=BasePersonModel)
 async def get_person_by_id(
-        person_id: str = Path(..., description="person's ID"),
+        person_id: UUID = Path(..., description="person's ID"),
         person_service: PersonsService = Depends(get_person_service)
 ) -> BasePersonModel:
     """
@@ -39,7 +40,7 @@ async def person(
 
 @router.get("/{person_id}/film", response_model=list[Films])
 async def get_person_by_id(
-        person_id: str = Path(..., description="person's ID"),
+        person_id: UUID = Path(..., description="person's ID"),
         page_size: int = Query(10, ge=1, description='Pagination page size'),
         page_number: int = Query(1, ge=1, description='Pagination page number'),
         person_service: PersonsService = Depends(get_person_service)
