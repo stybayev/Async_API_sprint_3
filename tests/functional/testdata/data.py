@@ -64,7 +64,7 @@ PARAMETRES = {
     ],
     'not_existing_film_id': [
         (
-            {'films': '123e4567-e89b-12d3-a456-426655440000'},
+            '123e4567-e89b-12d3-a456-426655440000',
             {'status': 404, 'answer': {'detail': 'film not found'}}
         )
     ]
