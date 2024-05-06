@@ -1,10 +1,8 @@
 import asyncio
-import sys
 import uuid
 from copy import deepcopy
 
 import aiohttp
-import pytest
 import pytest_asyncio
 from elasticsearch import AsyncElasticsearch
 from elasticsearch.helpers import async_bulk
@@ -91,11 +89,9 @@ def es_write_data(es_client: AsyncElasticsearch):
     async def inner(data: list[dict]) -> None:
         if await es_client.indices.exists(index=test_settings.es_index):
             await es_client.indices.delete(index=test_settings.es_index)
-        await es_client.indices.create(
-            index=test_settings.es_index,
-        )
-
-        updated, errors = await async_bulk(client=es_client, actions=data)
+        await es_client.indices.create(index=test_settings.es_index)
+        # refresh="wait_for" - опция для ожидания обновления индекса после
+        updated, errors = await async_bulk(client=es_client, actions=data, refresh="wait_for")
 
         if errors:
             raise Exception('Ошибка записи данных в Elasticsearch')
@@ -115,20 +111,3 @@ def make_get_request(session_client):
         return Response(body, headers, status)
 
     return inner
-
-
-@pytest_asyncio.fixture(name="es_add_film")
-def es_add_film(es_client: AsyncElasticsearch):
-    async def inner():
-        test_film = deepcopy(TEST_DATA)
-        test_film['id'] = test_settings.es_id_field
-        film = await es_client.index(index=test_settings.es_index, id=test_film['id'], body=test_film)
-        print(film)
-        print(film)
-        print(film)
-        print(film)
-        print(film)
-        print(film)
-        return film
-    return inner
-    # await es_client.delete(index=test_settings.es_index, id=test_film['id'])

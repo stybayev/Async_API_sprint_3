@@ -25,7 +25,7 @@ async def test_search_limit(
     """
     # Загружаем данные в ES
     await es_write_data(es_data)
-    time.sleep(1)
+    # time.sleep(1)
     response = await make_get_request('films/search', query_data)
 
     # Проверяем ответ
@@ -48,7 +48,7 @@ async def test_search_validation(
 ) -> None:
     # Загружаем данные в ES
     await es_write_data(es_data)
-    time.sleep(1)
+    # time.sleep(1)
     response = await make_get_request('films/search', query_data)
 
     # Проверяем ответ
@@ -71,7 +71,7 @@ async def test_search_phrase(
 ) -> None:
     # Загружаем данные в ES
     await es_write_data(es_data)
-    time.sleep(1)
+    # time.sleep(1)
     response = await make_get_request('films/search', query_data)
 
     # Проверяем ответ
