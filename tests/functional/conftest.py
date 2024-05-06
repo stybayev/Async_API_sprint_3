@@ -1,13 +1,17 @@
 import asyncio
+import sys
 import uuid
+from copy import deepcopy
+
 import aiohttp
+import pytest
 import pytest_asyncio
 from elasticsearch import AsyncElasticsearch
 from elasticsearch.helpers import async_bulk
-from utils.dc_objects import Response
-from testdata.data import TEST_DATA
-from settings import test_settings
-from copy import deepcopy
+
+from tests.functional.settings import test_settings
+from tests.functional.testdata.data import TEST_DATA
+from tests.functional.utils.dc_objects import Response
 
 
 @pytest_asyncio.fixture(name='es_client', scope='session')
@@ -67,7 +71,7 @@ def es_data(request) -> list[dict]:
     bulk_query: list[dict] = []
 
     for row in es_data:
-        data = {'_index': 'movies', '_id': row['id']}
+        data = {'_index': test_settings.es_index, '_id': row['id']}
         data.update({'_source': row})
         bulk_query.append(data)
 
@@ -95,6 +99,7 @@ def es_write_data(es_client: AsyncElasticsearch):
 
         if errors:
             raise Exception('Ошибка записи данных в Elasticsearch')
+
     return inner
 
 
@@ -108,4 +113,15 @@ def make_get_request(session_client):
             headers = response.headers
             status = response.status
         return Response(body, headers, status)
+
     return inner
+
+
+@pytest_asyncio.fixture(name="es_add_film", scope="function")
+async def es_add_film(es_client: AsyncElasticsearch):
+    test_film = TEST_DATA
+    test_film['id'] = test_settings.es_id_field
+    await es_client.index(index=test_settings.es_index, id=test_film['id'], body=test_film)
+    yield test_film
+
+    await es_client.delete(index=test_settings.es_index, id=test_film['id'])
