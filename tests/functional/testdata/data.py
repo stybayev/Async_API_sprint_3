@@ -8,7 +8,7 @@ TEST_DATA = {
     'genre': ['Action', 'Sci-Fi'],
     'title': 'The Star',
     'description': 'New World',
-    'director': [{'id': 'ef86b8ff-3c82-4d31-ad8e-72b69f4e3f95', 'name': 'Ann'}],  # ['Stan'],
+    'director': {'id': 'ef86b8ff-3c82-4d31-ad8e-72b69f4e3f95', 'name': 'Ann'},  # ['Stan'],
     'actors_names': ['Ann', 'Bob'],
     'writers_names': ['Ben', 'Howard'],
     'actors': [
@@ -56,14 +56,16 @@ PARAMETRES = {
             {'status': 200, 'length': 3}
         ),
     ],
-    'film_id': [
+    'existing_film_id': [
+        (
+            test_settings.es_id_field,
+            {'status': 200, 'answer': test_settings.es_id_field}
+        )
+    ],
+    'not_existing_film_id': [
         (
             {'films': '123e4567-e89b-12d3-a456-426655440000'},
-            {'status': 404, 'body': {'detail': 'film not found'}}
-        ),
-        (
-            {'films': test_settings.es_id_field},
-            {'status': 200, 'body': test_settings.es_id_field}
+            {'status': 404, 'answer': {'detail': 'film not found'}}
         )
     ]
 }

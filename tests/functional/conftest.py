@@ -117,11 +117,18 @@ def make_get_request(session_client):
     return inner
 
 
-@pytest_asyncio.fixture(name="es_add_film", scope="function")
-async def es_add_film(es_client: AsyncElasticsearch):
-    test_film = TEST_DATA
-    test_film['id'] = test_settings.es_id_field
-    await es_client.index(index=test_settings.es_index, id=test_film['id'], body=test_film)
-    yield test_film
-
-    await es_client.delete(index=test_settings.es_index, id=test_film['id'])
+@pytest_asyncio.fixture(name="es_add_film")
+def es_add_film(es_client: AsyncElasticsearch):
+    async def inner():
+        test_film = deepcopy(TEST_DATA)
+        test_film['id'] = test_settings.es_id_field
+        film = await es_client.index(index=test_settings.es_index, id=test_film['id'], body=test_film)
+        print(film)
+        print(film)
+        print(film)
+        print(film)
+        print(film)
+        print(film)
+        return film
+    return inner
+    # await es_client.delete(index=test_settings.es_index, id=test_film['id'])
