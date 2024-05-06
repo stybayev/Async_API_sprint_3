@@ -5,3 +5,5 @@ __pycache__/
 .*env
 questions
 .idea
+*.DS_Store
+.DS_Store
