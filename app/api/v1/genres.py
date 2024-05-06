@@ -2,12 +2,13 @@ from fastapi import APIRouter, Depends, Query, Path
 
 from app.db.elastic import get_elastic, AsyncElasticsearch
 from app.models.genre import Genre
+from uuid import UUID
 
 router = APIRouter()
 
 
 @router.get("/{genre_id}", response_model=Genre)
-async def get_genre_by_id(genre_id: str = Path(..., description="genre's ID"),
+async def get_genre_by_id(genre_id: UUID = Path(..., description="genre's ID"),
                           es: AsyncElasticsearch = Depends(get_elastic)) -> Genre:
     """
     Получение жанра по id.

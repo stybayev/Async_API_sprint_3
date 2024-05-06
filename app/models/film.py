@@ -1,5 +1,7 @@
 from pydantic import Field, BaseModel as BaseModelFromPydantic
 from typing import List, Optional
+from fastapi import Query
+from uuid import UUID
 from app.models.base_model import BaseMixin, BaseFilm
 
 
@@ -14,7 +16,7 @@ class Genre(BaseModelFromPydantic):
     """
     Модель жанра, связанная с фильмом
     """
-    uuid: str
+    uuid: UUID
     name: str
 
 
@@ -22,7 +24,7 @@ class Director(BaseModelFromPydantic):
     """
     Модель режисреа, связанная с фильмом
     """
-    uuid: str
+    uuid: UUID
     full_name: str
 
 
@@ -57,6 +59,6 @@ class Films(BaseFilm):
     """
     Модель фильмов
     """
-    id: str
+    id: UUID
     title: str
-    imdb_rating: Optional[float] = None
+    imdb_rating: Optional[float] = Query(ge=0, le=10)

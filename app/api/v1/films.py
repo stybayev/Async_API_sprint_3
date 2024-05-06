@@ -6,13 +6,14 @@ router = APIRouter()
 
 from pydantic import BaseModel
 from typing import List
+from uuid import UUID
 
 
 class BaseFilmModelResponse(BaseModel):
     """
     Базовая модель фильма для ответа API
     """
-    uuid: str
+    uuid: UUID
     title: str
     imdb_rating: float
 
@@ -21,7 +22,7 @@ class BasePersonModelResponse(BaseModel):
     """
     Базовая модель персоны для ответа API
     """
-    uuid: str
+    uuid: UUID
     full_name: str
 
 
@@ -29,7 +30,7 @@ class GenreResponse(BaseModel):
     """
     Базовая модель для жанров ответа API
     """
-    uuid: str
+    uuid: UUID
     name: str
 
 
@@ -75,7 +76,7 @@ class FilmListResponse(BaseFilmModelResponse):
 # Внедряем FilmService с помощью Depends(get_film_service)
 @router.get('/{film_id}', response_model=FilmResponse)
 async def film_details(
-        film_id: str = Path(..., description='film id'),
+        film_id: UUID = Path(..., description='film id'),
         film_service: FilmService = Depends(get_film_service)) -> FilmResponse:
     """
     Получить информацию о фильме
@@ -87,7 +88,7 @@ async def film_details(
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND,
                             detail='film not found')
 
-    # Преобразование данных об актёрах, сценаристах, режиссорах
+    # Преобразование данных об актёрах, сценаристах, режиссерах
     actors_response = [ActorResponse(uuid=actor.id, full_name=actor.name) for actor in film.actors]
     writers_response = [WriterResponse(uuid=writer.id, full_name=writer.name) for writer in film.writers]
     directors_response = [DirectorResponse(
