@@ -1,6 +1,5 @@
 import uuid
 from settings import test_settings
-import datetime
 
 TEST_DATA = {
     'id': str(uuid.uuid4()),
@@ -8,7 +7,7 @@ TEST_DATA = {
     'genre': ['Action', 'Sci-Fi'],
     'title': 'The Star',
     'description': 'New World',
-    'director': {'id': 'ef86b8ff-3c82-4d31-ad8e-72b69f4e3f95', 'name': 'Ann'},  # ['Stan'],
+    'director': {'id': 'ef86b8ff-3c82-4d31-ad8e-72b69f4e3f95', 'name': 'Ann'},
     'actors_names': ['Ann', 'Bob'],
     'writers_names': ['Ben', 'Howard'],
     'actors': [
@@ -21,7 +20,13 @@ TEST_DATA = {
     ]
 }
 
-PARAMETRES = {
+TEST_DATA_GENRE = {
+    'id': 'adb5ffa8-7dbc-4088-8e5f-44311680a75c',
+    'name': 'Action',
+    'description': 'description'
+}
+
+PARAMETERS = {
     'phrase': [
         (
             {'films/search': 'Star'},
@@ -70,4 +75,17 @@ PARAMETRES = {
             {'status': 200, 'length': 10}
         )
     ],
+    'search_genre': [
+        (
+            {
+                'id': 'adb5ffa8-7dbc-4088-8e5f-44311680a75c',
+                'genres': '',
+            },
+            {
+                'status': 200,
+                'length': 1,
+                'name': 'Action'
+            }
+        )
+    ]
 }

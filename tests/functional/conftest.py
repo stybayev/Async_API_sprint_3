@@ -8,7 +8,7 @@ from elasticsearch import AsyncElasticsearch
 from elasticsearch.helpers import async_bulk
 
 from settings import test_settings
-from testdata.data import TEST_DATA
+from testdata.data import TEST_DATA, TEST_DATA_GENRE
 from utils.dc_objects import Response
 
 
@@ -32,44 +32,69 @@ async def session_client() -> aiohttp.ClientSession:
 @pytest_asyncio.fixture()
 def es_data(request) -> list[dict]:
     es_data = []
+    index = test_settings.es_index
     type_test = request.node.get_closest_marker("fixt_data").args[0]
+    # FIX: эти условия не очень хорошо, надо индекс параметром будет
+    # передавать и убрать из settings es_index раз уж у нас 2 индекса
+    if type_test == 'genre' or type_test == 'limit_genre' or type_test == 'genre_validation':
+        index = 'genres'
+    copy_film_data = deepcopy(TEST_DATA)
+    copy_genre_data = deepcopy(TEST_DATA_GENRE)
     # Генерируем данные для ES
     if type_test == 'limit':
         for _ in range(60):
-            TEST_DATA['id'] = str(uuid.uuid4())
-            es_data.append(deepcopy(TEST_DATA))
+            copy_film_data['id'] = str(uuid.uuid4())
+            es_data.append(deepcopy(copy_film_data))
 
     if type_test == 'validation':
         for _ in range(3):
-            TEST_DATA['id'] = str(uuid.uuid4())
-            es_data.append(deepcopy(TEST_DATA))
-        TEST_DATA['id'] = str(uuid.uuid4())
-        TEST_DATA['imdb_rating'] = 15
-        es_data.append(deepcopy(TEST_DATA))
-        TEST_DATA['id'] = str(uuid.uuid4())
-        TEST_DATA['imdb_rating'] = -2
-        es_data.append(deepcopy(TEST_DATA))
-        TEST_DATA['id'] = '1123456'
-        TEST_DATA['imdb_rating'] = 5
-        es_data.append(deepcopy(TEST_DATA))
+            copy_film_data['id'] = str(uuid.uuid4())
+            es_data.append(deepcopy(copy_film_data))
+        copy_film_data['id'] = str(uuid.uuid4())
+        copy_film_data['imdb_rating'] = 15
+        es_data.append(deepcopy(copy_film_data))
+        copy_film_data['id'] = str(uuid.uuid4())
+        copy_film_data['imdb_rating'] = -2
+        es_data.append(deepcopy(copy_film_data))
+        copy_film_data['id'] = '1123456'
+        copy_film_data['imdb_rating'] = 5
+        es_data.append(deepcopy(copy_film_data))
 
     if type_test == 'phrase':
         for _ in range(3):
-            TEST_DATA['id'] = str(uuid.uuid4())
-            TEST_DATA['title'] = 'The Star'
-            es_data.append(deepcopy(TEST_DATA))
+            copy_film_data['id'] = str(uuid.uuid4())
+            copy_film_data['title'] = 'The Star'
+            es_data.append(deepcopy(copy_film_data))
         for _ in range(3):
-            TEST_DATA['id'] = str(uuid.uuid4())
-            TEST_DATA['title'] = 'Star Roger'
-            es_data.append(deepcopy(TEST_DATA))
-        TEST_DATA['id'] = str(uuid.uuid4())
-        TEST_DATA['title'] = 'Roger Philips'
-        es_data.append(deepcopy(TEST_DATA))
+            copy_film_data['id'] = str(uuid.uuid4())
+            copy_film_data['title'] = 'Star Roger'
+            es_data.append(deepcopy(copy_film_data))
+        copy_film_data['id'] = str(uuid.uuid4())
+        copy_film_data['title'] = 'Roger Philips'
+        es_data.append(deepcopy(copy_film_data))
+
+    if type_test == 'limit_genre':
+        for _ in range(60):
+            copy_genre_data['id'] = str(uuid.uuid4())
+            copy_genre_data['name'] = f'Action{_}'
+            es_data.append(deepcopy(copy_genre_data))
+
+    
+
+    copy_genre_data = deepcopy(TEST_DATA_GENRE)
+
+    if type_test == 'genre':
+        es_data.append(deepcopy(copy_genre_data))
+        genres = ['Melodrama', 'Sci-Fi', 'Comedy', 'Tragedy']
+        for _ in range(4):
+            copy_genre_data['id'] = str(uuid.uuid4())
+            copy_genre_data['name'] = genres[_]
+            es_data.append(deepcopy(copy_genre_data))
 
     bulk_query: list[dict] = []
 
     for row in es_data:
-        data = {'_index': test_settings.es_index, '_id': row['id']}
+        data = {'_index': index, '_id': row['id']}
         data.update({'_source': row})
         bulk_query.append(data)
 
@@ -79,17 +104,22 @@ def es_data(request) -> list[dict]:
 @pytest_asyncio.fixture(scope='session', autouse=True)
 def event_loop():
     loop = asyncio.get_event_loop()
-    t = type(loop)
     yield loop
     loop.close()
 
 
 @pytest_asyncio.fixture(name='es_write_data')
-def es_write_data(es_client: AsyncElasticsearch):
+def es_write_data(es_client: AsyncElasticsearch, request):
     async def inner(data: list[dict]) -> None:
-        if await es_client.indices.exists(index=test_settings.es_index):
-            await es_client.indices.delete(index=test_settings.es_index)
-        await es_client.indices.create(index=test_settings.es_index)
+        type_test = request.node.get_closest_marker("fixt_data").args[0]
+        index = test_settings.es_index
+        # FIX: эти условия не очень хорошо, надо индекс параметром будет
+        # передавать и убрать из settings es_index раз уж у нас 2 индекса
+        if type_test == 'limit_genre' or type_test == 'genre':
+            index = 'genres'
+        if await es_client.indices.exists(index=index):
+            await es_client.indices.delete(index=index)
+        await es_client.indices.create(index=index)
         # refresh="wait_for" - опция для ожидания обновления индекса после
         updated, errors = await async_bulk(client=es_client, actions=data, refresh="wait_for")
 
@@ -103,8 +133,10 @@ def es_write_data(es_client: AsyncElasticsearch):
 def make_get_request(session_client):
     async def inner(type_api, query_data) -> Response:
         url = test_settings.service_url + '/api/v1/' + type_api + '/'
-        query_data = {'query': query_data[type_api]}
-        async with session_client.get(url, params=query_data) as response:
+        if 'id' in query_data:
+            url += query_data['id']
+        get_params = {'query': query_data[type_api]}
+        async with session_client.get(url, params=get_params) as response:
             body = await response.json()
             headers = response.headers
             status = response.status

@@ -1,12 +1,12 @@
 import pytest
 from conftest import (es_write_data, event_loop, es_data,
                                        make_get_request, es_client, session_client)
-from testdata.data import PARAMETRES
+from testdata.data import PARAMETERS
 
 
 @pytest.mark.parametrize(
     'query_data, expected_answer',
-    PARAMETRES['limit']
+    PARAMETERS['limit']
 )
 @pytest.mark.fixt_data('limit')
 @pytest.mark.asyncio
@@ -33,7 +33,7 @@ async def test_search_limit(
 
 @pytest.mark.parametrize(
     'query_data, expected_answer',
-    PARAMETRES['validation']
+    PARAMETERS['validation']
 )
 @pytest.mark.fixt_data('validation')
 @pytest.mark.asyncio
@@ -55,7 +55,7 @@ async def test_search_validation(
 
 @pytest.mark.parametrize(
     'query_data, expected_answer',
-    PARAMETRES['phrase']
+    PARAMETERS['phrase']
 )
 @pytest.mark.fixt_data('phrase')
 @pytest.mark.asyncio
@@ -73,3 +73,5 @@ async def test_search_phrase(
     # Проверяем ответ
     assert response.status == expected_answer['status']
     assert len(response.body) == expected_answer['length']
+
+
