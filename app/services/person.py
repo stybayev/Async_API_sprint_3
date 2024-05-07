@@ -103,9 +103,7 @@ class PersonsService(BaseService):
     async def search_person(self, query: str,
                             page_size: int = 10,
                             page_number: int = 1) -> list[BasePersonModel]:
-        """
-        Search for persons by query with pagination and caching.
-        """
+
         params = {"query": query, "page_size": page_size, "page_number": page_number}
         cached_persons = await self._entities_from_cache(params)
         if cached_persons:
