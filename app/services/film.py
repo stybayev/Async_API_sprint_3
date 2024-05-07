@@ -128,6 +128,55 @@ class FilmService(BaseService):
         Получить список фильмов с учетом жанра, сортировки, размера страницы и номера страницы.
         Возвращает список объектов Film.
         """
+        films = await self._get_films_from_elastic(genre, sort, page_size, page_number)
+        return films
+
+    async def search_films(
+            self, query: str,
+            page_size: int = 10,
+            page_number: int = 1) -> list[Films]:
+        """
+        Поиск фильмов по заданному запросу.
+        """
+        offset = (page_number - 1) * page_size
+        search_body = {
+            "query": {
+                "multi_match": {
+                    "query": query,
+                    "fields": ["title^5", "description"]
+                }
+            },
+            "from": offset,
+            "size": page_size
+        }
+
+        try:
+            response = await self.elastic.search(index="movies", body=search_body)
+        except Exception as e:
+            logging.error(f"Failed to search films in Elasticsearch: {e}")
+            return []
+
+        films = []
+        for hit in response['hits']['hits']:
+            film_data = {
+                "id": hit["_id"],
+                "title": hit["_source"]["title"],
+                "imdb_rating": hit["_source"].get("imdb_rating")
+            }
+            try:
+                film = Films(**film_data)
+                films.append(film)
+            except ValidationError as e:
+                logging.error(f"Error validating film data: {e}")
+                continue
+
+        return films
+
+    async def _get_films_from_elastic(self, genre: str | None = None,
+                                      sort: str | None = None,
+                                      page_size: int = 10,
+                                      page_number: int = 1
+                                      ) -> list[Films]:
         offset = (page_number - 1) * page_size
         query_body = {
             "query": {
@@ -160,47 +209,6 @@ class FilmService(BaseService):
             response = await self.elastic.search(index="movies", body=query_body)
         except Exception as e:
             logging.error(f"Failed to fetch films from Elasticsearch: {e}")
-            return []
-
-        films = []
-        for hit in response['hits']['hits']:
-            film_data = {
-                "id": hit["_id"],
-                "title": hit["_source"]["title"],
-                "imdb_rating": hit["_source"].get("imdb_rating")
-            }
-            try:
-                film = Films(**film_data)
-                films.append(film)
-            except ValidationError as e:
-                logging.error(f"Error validating film data: {e}")
-                continue
-
-        return films
-
-    async def search_films(
-            self, query: str,
-            page_size: int = 10,
-            page_number: int = 1) -> list[Films]:
-        """
-        Поиск фильмов по заданному запросу.
-        """
-        offset = (page_number - 1) * page_size
-        search_body = {
-            "query": {
-                "multi_match": {
-                    "query": query,
-                    "fields": ["title^5", "description"]
-                }
-            },
-            "from": offset,
-            "size": page_size
-        }
-
-        try:
-            response = await self.elastic.search(index="movies", body=search_body)
-        except Exception as e:
-            logging.error(f"Failed to search films in Elasticsearch: {e}")
             return []
 
         films = []
