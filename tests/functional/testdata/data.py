@@ -1,5 +1,5 @@
 import uuid
-from tests.functional.settings import test_settings
+from settings import test_settings
 import datetime
 
 TEST_DATA = {
@@ -18,11 +18,7 @@ TEST_DATA = {
     'writers': [
         {'id': 'caf76c67-c0fe-477e-8766-3ab3ff2574b5', 'name': 'Ben'},
         {'id': 'b45bd7bc-2e16-46d5-b125-983d356768c6', 'name': 'Howard'}
-    ],
-    # Таких полей в ответе api нет
-    # 'created_at': datetime.datetime.now().isoformat(),
-    # 'updated_at': datetime.datetime.now().isoformat(),
-    # 'film_work_type': 'movie'
+    ]
 }
 
 PARAMETRES = {
@@ -67,5 +63,11 @@ PARAMETRES = {
             '123e4567-e89b-12d3-a456-426655440000',
             {'status': 404, 'answer': {'detail': 'film not found'}}
         )
-    ]
+    ],
+    'limit_genres': [
+        (
+            {'genres': ''},
+            {'status': 200, 'length': 10}
+        )
+    ],
 }

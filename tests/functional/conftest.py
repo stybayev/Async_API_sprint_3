@@ -7,9 +7,9 @@ import pytest_asyncio
 from elasticsearch import AsyncElasticsearch
 from elasticsearch.helpers import async_bulk
 
-from tests.functional.settings import test_settings
-from tests.functional.testdata.data import TEST_DATA
-from tests.functional.utils.dc_objects import Response
+from settings import test_settings
+from testdata.data import TEST_DATA
+from utils.dc_objects import Response
 
 
 @pytest_asyncio.fixture(name='es_client', scope='session')

@@ -1,8 +1,7 @@
 import pytest
-import time
-from tests.functional.conftest import (es_write_data, event_loop, es_data,
+from conftest import (es_write_data, event_loop, es_data,
                                        make_get_request, es_client, session_client)
-from tests.functional.testdata.data import PARAMETRES
+from testdata.data import PARAMETRES
 
 
 @pytest.mark.parametrize(
@@ -25,7 +24,6 @@ async def test_search_limit(
     """
     # Загружаем данные в ES
     await es_write_data(es_data)
-    # time.sleep(1)
     response = await make_get_request('films/search', query_data)
 
     # Проверяем ответ
@@ -48,7 +46,6 @@ async def test_search_validation(
 ) -> None:
     # Загружаем данные в ES
     await es_write_data(es_data)
-    # time.sleep(1)
     response = await make_get_request('films/search', query_data)
 
     # Проверяем ответ
@@ -71,7 +68,6 @@ async def test_search_phrase(
 ) -> None:
     # Загружаем данные в ES
     await es_write_data(es_data)
-    # time.sleep(1)
     response = await make_get_request('films/search', query_data)
 
     # Проверяем ответ
