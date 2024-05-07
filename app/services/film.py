@@ -1,5 +1,8 @@
 import logging
 from functools import lru_cache
+from hashlib import md5
+
+import orjson
 from elasticsearch import AsyncElasticsearch, NotFoundError
 from fastapi import Depends
 from pydantic import ValidationError
@@ -128,6 +131,53 @@ class FilmService(BaseService):
         Получить список фильмов с учетом жанра, сортировки, размера страницы и номера страницы.
         Возвращает список объектов Film.
         """
+        params = {
+            "genre": genre,
+            "sort": sort,
+            "page_size": page_size,
+            "page_number": page_number
+        }
+
+        cached_films = await self._entities_from_cache(params)
+        if cached_films:
+            return cached_films
+
+        # Запрос данных, если они не найдены в кеше
+        films = await self._get_films_from_elastic(genre, sort, page_size, page_number)
+
+        # Кеширование данных, если они были получены
+        if films:
+            await self._put_entities_to_cache(films, params)
+
+        return films
+
+    async def search_films(
+            self, query: str,
+            page_size: int = 10,
+            page_number: int = 1) -> list[Films]:
+        """
+        Поиск фильмов по заданному запросу.
+        """
+        params = {
+            "query": query,
+            "page_size": page_size,
+            "page_number": page_number
+        }
+        cached_films = await self._entities_from_cache(params)
+        if cached_films:
+            return cached_films
+
+        films = await self._search_films_from_elastic(query, page_size, page_number)
+        if films:
+            await self._put_entities_to_cache(films, params)
+
+        return films
+
+    async def _get_films_from_elastic(self, genre: str | None = None,
+                                      sort: str | None = None,
+                                      page_size: int = 10,
+                                      page_number: int = 1
+                                      ) -> list[Films]:
         offset = (page_number - 1) * page_size
         query_body = {
             "query": {
@@ -178,13 +228,10 @@ class FilmService(BaseService):
 
         return films
 
-    async def search_films(
+    async def _search_films_from_elastic(
             self, query: str,
             page_size: int = 10,
             page_number: int = 1) -> list[Films]:
-        """
-        Поиск фильмов по заданному запросу.
-        """
         offset = (page_number - 1) * page_size
         search_body = {
             "query": {

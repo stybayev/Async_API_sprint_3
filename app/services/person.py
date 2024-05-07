@@ -37,6 +37,24 @@ class PersonsService(BaseService):
     async def get_films(self, person_id: UUID,
                         page_size: int = 10,
                         page_number: int = 1) -> List[Films]:
+        self.model = Films
+
+        params = {'person_id': str(person_id),
+                  'page_size': page_size,
+                  'page_number': page_number}
+
+        cached_films = await self._entities_from_cache(params)
+        if cached_films:
+            return cached_films
+
+        persons = await self._get_persons_from_elastic(person_id, page_size, page_number)
+        if persons:
+            await self._put_entities_to_cache(persons, params)
+        return persons
+
+    async def _get_persons_from_elastic(self, person_id: UUID,
+                                        page_size: int = 10,
+                                        page_number: int = 1) -> List[Films]:
 
         offset = (page_number - 1) * page_size
         query_body = {
@@ -84,8 +102,23 @@ class PersonsService(BaseService):
 
     async def search_person(self, query: str,
                             page_size: int = 10,
-                            page_number: int = 1
-                            ) -> list[BasePersonModel]:
+                            page_number: int = 1) -> list[BasePersonModel]:
+
+        params = {"query": query, "page_size": page_size, "page_number": page_number}
+        cached_persons = await self._entities_from_cache(params)
+        if cached_persons:
+            return cached_persons
+
+        persons = await self._search_persons_from_elastic(query, page_size, page_number)
+        if persons:
+            await self._put_entities_to_cache(persons, params)
+
+        return persons
+
+    async def _search_persons_from_elastic(self, query: str,
+                                           page_size: int = 10,
+                                           page_number: int = 1
+                                           ) -> list[BasePersonModel]:
         offset = (page_number - 1) * page_size
         search_body = {
             "from": offset,
@@ -125,7 +158,8 @@ class PersonsService(BaseService):
         search_body = {**pagination_params}
 
         try:
-            response = await self.elastic.search(index=self.index_name, body=search_body)
+            response = await self.elastic.search(index=self.index_name,
+                                                 body=search_body)
         except Exception as e:
             logging.error(f"Failed to search persons in Elasticsearch: {e}")
             return []
