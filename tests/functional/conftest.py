@@ -1,15 +1,15 @@
 import asyncio
 import uuid
-from copy import deepcopy
-
+import random
 import aiohttp
 import pytest_asyncio
 from elasticsearch import AsyncElasticsearch
 from elasticsearch.helpers import async_bulk
-
+from copy import deepcopy
 from settings import test_settings
 from testdata.data import TEST_DATA, TEST_DATA_GENRE
 from utils.dc_objects import Response
+from utils.films_utils import generate_films
 
 
 @pytest_asyncio.fixture(name='es_client', scope='session')
@@ -79,7 +79,26 @@ def es_data(request) -> list[dict]:
             copy_genre_data['name'] = f'Action{_}'
             es_data.append(deepcopy(copy_genre_data))
 
-    
+    if type_test == 'genre_validation':
+        for _ in range(3):
+            copy_genre_data['id'] = str(uuid.uuid4())
+            copy_genre_data['name'] = f'Action{_}'
+            es_data.append(deepcopy(copy_genre_data))
+        copy_genre_data['id'] = '123456'
+        copy_genre_data['name'] = f'Action'
+        es_data.append(deepcopy(copy_genre_data))
+
+    if type_test == 'all_films':
+        count = random.randint(50, 100)
+        films = generate_films(count=count)
+        es_data.extend(films)
+
+    copy_film_data = deepcopy(TEST_DATA)
+    if type_test == 'film':
+        es_data.append(deepcopy(copy_film_data))
+        for _ in range(60):
+            copy_film_data['id'] = str(uuid.uuid4())
+            es_data.append(deepcopy(copy_film_data))
 
     copy_genre_data = deepcopy(TEST_DATA_GENRE)
 
@@ -115,7 +134,7 @@ def es_write_data(es_client: AsyncElasticsearch, request):
         index = test_settings.es_index
         # FIX: эти условия не очень хорошо, надо индекс параметром будет
         # передавать и убрать из settings es_index раз уж у нас 2 индекса
-        if type_test == 'limit_genre' or type_test == 'genre':
+        if type_test == 'limit_genre' or type_test == 'genre' or type_test == 'genre_validation':
             index = 'genres'
         if await es_client.indices.exists(index=index):
             await es_client.indices.delete(index=index)

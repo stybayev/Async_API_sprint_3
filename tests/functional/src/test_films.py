@@ -1,51 +1,59 @@
-import random
 import pytest
-from copy import deepcopy
 
-from tests.functional.settings import test_settings
-from tests.functional.conftest import event_loop, es_client, session_client, es_write_data
-from tests.functional.testdata.data import PARAMETRES, TEST_DATA
-from tests.functional.utils.films_utils import get_es_data, generate_films
+from conftest import (event_loop, es_client, session_client,
+                      es_write_data, make_get_request, es_data)
+from testdata.data import PARAMETERS
 
 
-@pytest.mark.parametrize('query_data, expected_answer', PARAMETRES['existing_film_id'])
+@pytest.mark.parametrize(
+    'query_data, expected_answer',
+    PARAMETERS['film_search']
+)
+@pytest.mark.fixt_data('film')
 @pytest.mark.asyncio
-async def test_get_film_by_id(session_client, es_write_data, query_data: dict, expected_answer: dict):
-    film = deepcopy(TEST_DATA)
-    film['id'] = test_settings.es_id_field
-    data_for_es = get_es_data([film], test_settings.es_index)
-    await es_write_data(data_for_es)
-    url = test_settings.service_url + f'/api/v1/films/{test_settings.es_id_field}'
-    response = await session_client.get(url)
-    body = await response.json()
-    status = response.status
+async def test_get_film_by_id(
+        es_write_data,
+        make_get_request,
+        es_data,
+        query_data: dict,
+        expected_answer: dict
+) -> None:
+    """
+    Тест на поиск фильма по идентификатору. Проверяет также поиск несуществующего фильма.
+    :param es_write_data: фикстура для записи данных в ES
+    :param make_get_request: фикстура для формирования и отправки запроса
+    :param es_data: фикстура генерации данных для последующего добавления в ES
+    :param query_data: данные запроса
+    :param expected_answer: данные ожидаемого ответа
+    :return: None
+    """
+    # Загружаем данные в ES
+    await es_write_data(es_data)
+    response = await make_get_request('films', query_data)
+    # Проверяем ответ
+    assert response.status == expected_answer['status']
+    if 'id' in expected_answer:
+        assert response.body['uuid'] == expected_answer['id']
+    else:
+        assert response.body['detail'] == expected_answer['answer']
 
-    assert status == expected_answer['status']
-    assert body['uuid'] == expected_answer['answer']
 
-
-@pytest.mark.parametrize('query_data, expected_answer', PARAMETRES['not_existing_film_id'])
+@pytest.mark.parametrize(
+    'query_data, expected_answer',
+    PARAMETERS['all_films']
+)
+@pytest.mark.fixt_data('all_films')
 @pytest.mark.asyncio
-async def test_get_film_by_not_existing_id(session_client, query_data: dict, expected_answer: dict):
-    url = test_settings.service_url + f'/api/v1/films/123e4567-e89b-12d3-a456-426655440000'
-    response = await session_client.get(url)
-    body = await response.json()
-    status = response.status
-
-    assert status == expected_answer['status']
-    assert body == expected_answer['answer']
-
-
-@pytest.mark.asyncio
-async def test_get_all_films(session_client, es_write_data):
-    count = random.randint(50, 100)
-    films = generate_films(count=count)
-    data_for_es = get_es_data(films, test_settings.es_index)
-    await es_write_data(data_for_es)
-    url = test_settings.service_url + f'/api/v1/films/?sort=-imdb_rating&page_size=100&page_number=1'
-    response = await session_client.get(url)
-    body = await response.json()
-    status = response.status
-
-    assert status == 200
-    assert len(body) == count
+async def test_get_all_films(
+        es_write_data,
+        make_get_request,
+        es_data,
+        query_data: dict,
+        expected_answer: dict
+) -> None:
+    # Загружаем данные в ES
+    await es_write_data(es_data)
+    response = await make_get_request('films', query_data)
+    # Проверяем ответ
+    assert response.status == expected_answer['status']
+    assert len(response.body) == expected_answer['length']

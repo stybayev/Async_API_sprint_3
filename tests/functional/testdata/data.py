@@ -1,8 +1,5 @@
-import uuid
-from settings import test_settings
-
 TEST_DATA = {
-    'id': str(uuid.uuid4()),
+    'id': 'ffc3df9f-a17e-4bae-b0b6-c9c4da290fdd',
     'imdb_rating': 8.5,
     'genre': ['Action', 'Sci-Fi'],
     'title': 'The Star',
@@ -57,16 +54,26 @@ PARAMETERS = {
             {'status': 200, 'length': 3}
         ),
     ],
-    'existing_film_id': [
+    'film_search': [
         (
-            test_settings.es_id_field,
-            {'status': 200, 'answer': test_settings.es_id_field}
-        )
-    ],
-    'not_existing_film_id': [
+            {
+                'id': 'ffc3df9f-a17e-4bae-b0b6-c9c4da290fdd',
+                'films': ''
+            },
+            {
+                'status': 200,
+                'id': 'ffc3df9f-a17e-4bae-b0b6-c9c4da290fdd'
+            }
+        ),
         (
-            '123e4567-e89b-12d3-a456-426655440000',
-            {'status': 404, 'answer': {'detail': 'film not found'}}
+            {
+                'id': 'ffc3df9f-a17e-4bae-b0b6-c9c4da290fde',
+                'films': ''
+            },
+            {
+                'status': 404,
+                'answer': 'film not found'
+            }
         )
     ],
     'limit_genres': [
@@ -75,6 +82,14 @@ PARAMETERS = {
             {'status': 200, 'length': 10}
         )
     ],
+
+    'all_films': [
+        (
+            {'films': ''},
+            {'status': 200, 'length': 10}
+        )
+    ],
+
     'search_genre': [
         (
             {
@@ -84,8 +99,15 @@ PARAMETERS = {
             {
                 'status': 200,
                 'length': 1,
-                'name': 'Action'
+                'name': 'Action',
+                'id': 'adb5ffa8-7dbc-4088-8e5f-44311680a75c'
             }
+        )
+    ],
+    'genre_validation': [
+        (
+            {'genres': ''},
+            {'status': 200, 'length': 3}
         )
     ]
 }

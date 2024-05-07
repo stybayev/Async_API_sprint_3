@@ -49,6 +49,7 @@ async def test_search_genre(
     # Проверяем ответ
     assert response.status == expected_answer['status']
     assert response.body['name'] == expected_answer['name']
+    assert response.body['id'] == expected_answer['id']
 
 
 @pytest.mark.parametrize(
@@ -57,13 +58,14 @@ async def test_search_genre(
 )
 @pytest.mark.fixt_data('genre_validation')
 @pytest.mark.asyncio
-async def test_search_genre(
+async def test_validation_genre(
         es_write_data,
         make_get_request,
         es_data,
         query_data: dict,
         expected_answer: dict
 ) -> None:
+    # FIX: Тест пока не проходит, потому что можно писать кривые uuid в базу. Надо поправить этот момент
     # Загружаем данные в ES
     await es_write_data(es_data)
     response = await make_get_request('genres', query_data)
