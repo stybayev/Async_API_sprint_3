@@ -1,13 +1,15 @@
 import asyncio
 import uuid
+from copy import deepcopy
+
 import aiohttp
 import pytest_asyncio
 from elasticsearch import AsyncElasticsearch
 from elasticsearch.helpers import async_bulk
-from utils.dc_objects import Response
-from testdata.data import TEST_DATA
-from settings import test_settings
-from copy import deepcopy
+
+from tests.functional.settings import test_settings
+from tests.functional.testdata.data import TEST_DATA
+from tests.functional.utils.dc_objects import Response
 
 
 @pytest_asyncio.fixture(name='es_client', scope='session')
@@ -67,7 +69,7 @@ def es_data(request) -> list[dict]:
     bulk_query: list[dict] = []
 
     for row in es_data:
-        data = {'_index': 'movies', '_id': row['id']}
+        data = {'_index': test_settings.es_index, '_id': row['id']}
         data.update({'_source': row})
         bulk_query.append(data)
 
@@ -87,14 +89,13 @@ def es_write_data(es_client: AsyncElasticsearch):
     async def inner(data: list[dict]) -> None:
         if await es_client.indices.exists(index=test_settings.es_index):
             await es_client.indices.delete(index=test_settings.es_index)
-        await es_client.indices.create(
-            index=test_settings.es_index,
-        )
-
-        updated, errors = await async_bulk(client=es_client, actions=data)
+        await es_client.indices.create(index=test_settings.es_index)
+        # refresh="wait_for" - опция для ожидания обновления индекса после
+        updated, errors = await async_bulk(client=es_client, actions=data, refresh="wait_for")
 
         if errors:
             raise Exception('Ошибка записи данных в Elasticsearch')
+
     return inner
 
 
@@ -108,4 +109,5 @@ def make_get_request(session_client):
             headers = response.headers
             status = response.status
         return Response(body, headers, status)
+
     return inner
