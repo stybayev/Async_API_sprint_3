@@ -1,10 +1,7 @@
 import asyncio
 import uuid
 import random
-from hashlib import md5
-
 import aiohttp
-import orjson
 import pytest_asyncio
 from elasticsearch import AsyncElasticsearch
 from elasticsearch.helpers import async_bulk
