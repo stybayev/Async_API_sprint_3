@@ -1,16 +1,16 @@
 import pytest
 from conftest import (es_write_data, event_loop, es_data,
-                                       make_get_request, es_client, session_client)
+                      make_get_request, es_client, session_client)
 from testdata.data import PARAMETERS
 
 
 @pytest.mark.parametrize(
     'query_data, expected_answer',
-    PARAMETERS['limit']
+    PARAMETERS['limit_genres']
 )
-@pytest.mark.fixt_data('limit')
+@pytest.mark.fixt_data('limit_genre')
 @pytest.mark.asyncio
-async def test_search_limit(
+async def test_genre_limit(
         es_write_data,
         make_get_request,
         es_data: list[dict],
@@ -18,13 +18,12 @@ async def test_search_limit(
         expected_answer: dict
 ) -> None:
     """
-    Проверка, что поиск по названию фильма
-    возвращает только первые 10 результатов
+    Проверяем вывод всех жанров
     :return:
     """
     # Загружаем данные в ES
     await es_write_data(es_data)
-    response = await make_get_request('films/search', query_data)
+    response = await make_get_request('genres', query_data)
 
     # Проверяем ответ
     assert response.status == expected_answer['status']
@@ -33,11 +32,11 @@ async def test_search_limit(
 
 @pytest.mark.parametrize(
     'query_data, expected_answer',
-    PARAMETERS['validation']
+    PARAMETERS['search_genre']
 )
-@pytest.mark.fixt_data('validation')
+@pytest.mark.fixt_data('genre')
 @pytest.mark.asyncio
-async def test_search_validation(
+async def test_search_genre(
         es_write_data,
         make_get_request,
         es_data,
@@ -46,32 +45,30 @@ async def test_search_validation(
 ) -> None:
     # Загружаем данные в ES
     await es_write_data(es_data)
-    response = await make_get_request('films/search', query_data)
-
+    response = await make_get_request('genres', query_data)
     # Проверяем ответ
     assert response.status == expected_answer['status']
-    assert len(response.body) == expected_answer['length']
+    assert response.body['name'] == expected_answer['name']
+    assert response.body['id'] == expected_answer['id']
 
 
 @pytest.mark.parametrize(
     'query_data, expected_answer',
-    PARAMETERS['phrase']
+    PARAMETERS['genre_validation']
 )
-@pytest.mark.fixt_data('phrase')
+@pytest.mark.fixt_data('genre_validation')
 @pytest.mark.asyncio
-async def test_search_phrase(
+async def test_validation_genre(
         es_write_data,
         make_get_request,
         es_data,
         query_data: dict,
         expected_answer: dict
 ) -> None:
+    # FIX: Тест пока не проходит, потому что можно писать кривые uuid в базу. Надо поправить этот момент
     # Загружаем данные в ES
     await es_write_data(es_data)
-    response = await make_get_request('films/search', query_data)
-
+    response = await make_get_request('genres', query_data)
     # Проверяем ответ
     assert response.status == expected_answer['status']
     assert len(response.body) == expected_answer['length']
-
-

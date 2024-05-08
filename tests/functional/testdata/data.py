@@ -1,14 +1,10 @@
-import uuid
-from tests.functional.settings import test_settings
-import datetime
-
 TEST_DATA = {
-    'id': str(uuid.uuid4()),
+    'id': 'ffc3df9f-a17e-4bae-b0b6-c9c4da290fdd',
     'imdb_rating': 8.5,
     'genre': ['Action', 'Sci-Fi'],
     'title': 'The Star',
     'description': 'New World',
-    'director': {'id': 'ef86b8ff-3c82-4d31-ad8e-72b69f4e3f95', 'name': 'Ann'},  # ['Stan'],
+    'director': {'id': 'ef86b8ff-3c82-4d31-ad8e-72b69f4e3f95', 'name': 'Ann'},
     'actors_names': ['Ann', 'Bob'],
     'writers_names': ['Ben', 'Howard'],
     'actors': [
@@ -18,14 +14,16 @@ TEST_DATA = {
     'writers': [
         {'id': 'caf76c67-c0fe-477e-8766-3ab3ff2574b5', 'name': 'Ben'},
         {'id': 'b45bd7bc-2e16-46d5-b125-983d356768c6', 'name': 'Howard'}
-    ],
-    # Таких полей в ответе api нет
-    # 'created_at': datetime.datetime.now().isoformat(),
-    # 'updated_at': datetime.datetime.now().isoformat(),
-    # 'film_work_type': 'movie'
+    ]
 }
 
-PARAMETRES = {
+TEST_DATA_GENRE = {
+    'id': 'adb5ffa8-7dbc-4088-8e5f-44311680a75c',
+    'name': 'Action',
+    'description': 'description'
+}
+
+PARAMETERS = {
     'phrase': [
         (
             {'films/search': 'Star'},
@@ -56,16 +54,60 @@ PARAMETRES = {
             {'status': 200, 'length': 3}
         ),
     ],
-    'existing_film_id': [
+    'film_search': [
         (
-            test_settings.es_id_field,
-            {'status': 200, 'answer': test_settings.es_id_field}
+            {
+                'id': 'ffc3df9f-a17e-4bae-b0b6-c9c4da290fdd',
+                'films': ''
+            },
+            {
+                'status': 200,
+                'id': 'ffc3df9f-a17e-4bae-b0b6-c9c4da290fdd'
+            }
+        ),
+        (
+            {
+                'id': 'ffc3df9f-a17e-4bae-b0b6-c9c4da290fde',
+                'films': ''
+            },
+            {
+                'status': 404,
+                'answer': 'film not found'
+            }
         )
     ],
-    'not_existing_film_id': [
+    'limit_genres': [
         (
-            '123e4567-e89b-12d3-a456-426655440000',
-            {'status': 404, 'answer': {'detail': 'film not found'}}
+            {'genres': ''},
+            {'status': 200, 'length': 10}
+        )
+    ],
+
+    'all_films': [
+        (
+            {'films': ''},
+            {'status': 200, 'length': 10}
+        )
+    ],
+
+    'search_genre': [
+        (
+            {
+                'id': 'adb5ffa8-7dbc-4088-8e5f-44311680a75c',
+                'genres': '',
+            },
+            {
+                'status': 200,
+                'length': 1,
+                'name': 'Action',
+                'id': 'adb5ffa8-7dbc-4088-8e5f-44311680a75c'
+            }
+        )
+    ],
+    'genre_validation': [
+        (
+            {'genres': ''},
+            {'status': 200, 'length': 3}
         )
     ]
 }
