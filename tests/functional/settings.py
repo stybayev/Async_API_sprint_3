@@ -1,14 +1,19 @@
+import os
+
 from pydantic import Field
 from pydantic_settings import BaseSettings
 from dotenv import load_dotenv
 
-load_dotenv()
+if os.path.exists('/.dockerenv'):
+    load_dotenv()
+else:
+    load_dotenv(dotenv_path='.env.local')
 
 
 class TestSettings(BaseSettings):
     es_host: str = Field('http://127.0.0.1:9200', env='ELASTIC_HOST')
     es_index: str = Field(default='movies')
-    redis_host: str = Field(env='REDIS_HOST')
+    redis_host: str = Field(default=os.getenv('REDIS_HOST', 'localhost'))
     service_url: str = Field(default='http://127.0.0.1:8000', env='SERVICE_URL')
     # es_mapping = {
     #     "movies": {

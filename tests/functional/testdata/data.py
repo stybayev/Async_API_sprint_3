@@ -51,7 +51,7 @@ PARAMETERS = {
     'validation': [
         (
             {'films/search': 'The Star'},
-            {'status': 200, 'length': 3}
+            {'status': 200, 'length': 10}
         ),
     ],
     'film_search': [
@@ -107,7 +107,7 @@ PARAMETERS = {
     'genre_validation': [
         (
             {'genres': ''},
-            {'status': 200, 'length': 3}
+            {'status': 200, 'length': 10}
         )
     ]
 }

@@ -6,10 +6,13 @@ import pytest_asyncio
 from elasticsearch import AsyncElasticsearch
 from elasticsearch.helpers import async_bulk
 from copy import deepcopy
-from settings import test_settings
-from testdata.data import TEST_DATA, TEST_DATA_GENRE
-from utils.dc_objects import Response
-from utils.films_utils import generate_films
+
+from redis.asyncio.client import Redis
+
+from tests.functional.settings import test_settings
+from tests.functional.testdata.data import TEST_DATA, TEST_DATA_GENRE
+from tests.functional.utils.dc_objects import Response
+from tests.functional.utils.films_utils import generate_films
 
 
 @pytest_asyncio.fixture(name='es_client', scope='session')
@@ -162,3 +165,11 @@ def make_get_request(session_client):
         return Response(body, headers, status)
 
     return inner
+
+
+@pytest_asyncio.fixture(scope='session')
+async def redis_client():
+    client = Redis(host=test_settings.redis_host, decode_responses=True)
+    yield client
+    await client.flushdb()
+    await client.close()

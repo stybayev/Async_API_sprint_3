@@ -1,7 +1,5 @@
 import pytest
-from conftest import (es_write_data, event_loop, es_data,
-                      make_get_request, es_client, session_client)
-from testdata.data import PARAMETERS
+from tests.functional.testdata.data import PARAMETERS
 
 
 @pytest.mark.parametrize(
