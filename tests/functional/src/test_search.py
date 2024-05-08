@@ -1,7 +1,11 @@
+import asyncio
+from hashlib import md5
+
+import orjson
 import pytest
-from conftest import (es_write_data, event_loop, es_data,
+from tests.functional.conftest import (es_write_data, event_loop, es_data,
                                        make_get_request, es_client, session_client)
-from testdata.data import PARAMETERS
+from tests.functional.testdata.data import PARAMETERS
 
 
 @pytest.mark.parametrize(
@@ -75,3 +79,46 @@ async def test_search_phrase(
     assert len(response.body) == expected_answer['length']
 
 
+@pytest.mark.fixt_data('limit')
+@pytest.mark.asyncio
+async def test_search_with_redis_cache(
+        es_write_data,
+        make_get_request,
+        redis_client,
+        es_data: list[dict],
+        query_data={'films/search': 'Star'},
+        expected_answer: dict = {'status': 200, 'length': 6}
+) -> None:
+    # Загружаем данные в ES
+    await es_write_data(es_data)
+
+    # Первый запрос, который запишет данные в кэш
+    response = await make_get_request('films/search', query_data)
+    assert response.status == expected_answer['status']
+    assert len(response.body) == expected_answer['length']
+
+    # Даем время для записи в кэш
+    await asyncio.sleep(1)
+
+    # Создаем ключ для проверки кэша
+    params = {
+        "query": 'Star',
+        "page_size": 10,
+        "page_number": 1
+    }
+
+    params_json = orjson.dumps(params)
+    cache_key = md5(params_json).hexdigest()
+
+    # Получаем данные из кэша по созданному ключу
+    cached_data = await redis_client.get(f"movies:{cache_key}")
+    assert cached_data is not None, "Данные должны быть в кэше"
+
+    # Повторный запрос, который должен извлечь данные из кэша
+    response_cached = await make_get_request('films/search', query_data)
+    assert response_cached.status == response.status
+    assert response_cached.body == response.body
+
+    # Проверка, что данные из кэша совпадают с первоначальными данными
+    cached_films = orjson.loads(cached_data)
+    assert len(cached_films) == expected_answer['length'], "Количество фильмов из кэша должно совпадать"
