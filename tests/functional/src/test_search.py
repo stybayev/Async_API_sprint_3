@@ -100,17 +100,17 @@ async def test_search_with_redis_cache(
 
     # Создаем ключ для проверки кэша
     params = {
-        "query": 'Star',
-        "page_size": 10,
-        "page_number": 1
+        'query': 'Star',
+        'page_size': 10,
+        'page_number': 1
     }
 
     params_json = orjson.dumps(params)
     cache_key = md5(params_json).hexdigest()
 
     # Получаем данные из кэша по созданному ключу
-    cached_data = await redis_client.get(f"movies:{cache_key}")
-    assert cached_data is not None, "Данные должны быть в кэше"
+    cached_data = await redis_client.get(f'movies:{cache_key}')
+    assert cached_data is not None, 'Данные должны быть в кэше'
 
     # Повторный запрос, который должен извлечь данные из кэша
     response_cached = await make_get_request('films/search', query_data)
@@ -119,4 +119,4 @@ async def test_search_with_redis_cache(
 
     # Проверка, что данные из кэша совпадают с первоначальными данными
     cached_films = orjson.loads(cached_data)
-    assert len(cached_films) == expected_answer['length'], "Количество фильмов из кэша должно совпадать"
+    assert len(cached_films) == expected_answer['length'], 'Количество фильмов из кэша должно совпадать'
