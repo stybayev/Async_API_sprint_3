@@ -128,8 +128,14 @@ def es_data(request) -> list[dict]:
         persons_names = ['Ann', 'Bob', 'Ben', 'Howard']
         for name in persons_names:
             copy_person_data['id'] = str(uuid.uuid4())
-            copy_person_data['fUll_name'] = name
+            copy_person_data['full_name'] = name
             es_data.append(deepcopy(copy_person_data))
+
+    if type_test == 'person_films':
+        count = 15
+        films = generate_films(count=count)
+        es_data.extend(films)
+
 
     bulk_query: list[dict] = []
     for row in es_data:
@@ -170,7 +176,9 @@ def make_get_request(session_client):
         url = test_settings.service_url + '/api/v1/' + type_api + '/'
         if 'id' in query_data:
             url += query_data['id']
-        get_params = {'query': query_data[type_api]}
+        get_params = {'query': query_data.get(type_api)}
+        if not get_params['query']:
+            get_params = None
         async with session_client.get(url, params=get_params) as response:
             body = await response.json()
             headers = response.headers

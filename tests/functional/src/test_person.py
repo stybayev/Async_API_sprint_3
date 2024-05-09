@@ -1,5 +1,6 @@
 import pytest
 from tests.functional.testdata.data import PARAMETERS
+from tests.functional.utils.films_utils import get_es_data
 
 
 @pytest.mark.parametrize(
@@ -66,6 +67,29 @@ async def test_validation_person(
     # FIX: Тест пока не проходит, потому что можно писать кривые uuid в базу. Надо поправить этот момент
     # Загружаем данные в ES
     await es_write_data(es_data, 'persons')
+    response = await make_get_request('persons', query_data)
+    # Проверяем ответ
+    assert response.status == expected_answer['status']
+    assert len(response.body) == expected_answer['length']
+
+
+@pytest.mark.parametrize(
+    'query_data, expected_answer',
+    PARAMETERS['person_films']
+)
+@pytest.mark.fixt_data('person_films')
+@pytest.mark.asyncio
+async def test_films_by_person(
+        es_write_data,
+        make_get_request,
+        es_data,
+        query_data: dict,
+        expected_answer: dict
+) -> None:
+    await es_write_data(es_data, 'movies')
+    data = get_es_data([{'id': 'ef86b8ff-3c82-4d31-ad8e-72b69f4e3f95', 'full_name': 'Ann'}], 'persons')
+    await es_write_data(data, 'persons')
+
     response = await make_get_request('persons', query_data)
     # Проверяем ответ
     assert response.status == expected_answer['status']

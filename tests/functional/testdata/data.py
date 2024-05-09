@@ -23,7 +23,7 @@ TEST_DATA_GENRE = {
     'description': 'description'
 }
 
-TEST_DATA_PERSON = {'id': 'adb5ffa8-7dbc-4088-8e5f-44311680a75c', 'name': 'Ann'}
+TEST_DATA_PERSON = {'id': 'adb5ffa8-7dbc-4088-8e5f-44311680a75c', 'full_name': 'Ann'}
 
 PARAMETERS = {
     'phrase': [
@@ -136,6 +136,12 @@ PARAMETERS = {
         (
             {'persons': ''},
             {'status': 200, 'length': 10}
+        )
+    ],
+    'person_films': [
+        (
+            {'id': 'ef86b8ff-3c82-4d31-ad8e-72b69f4e3f95/film?page_size=100&page_number=1'},
+            {'status': 200, 'length': 15}
         )
     ]
 }
