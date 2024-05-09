@@ -35,6 +35,7 @@ async def session_client() -> aiohttp.ClientSession:
 @pytest_asyncio.fixture()
 def es_data(request) -> list[dict]:
     es_data = []
+
     index = test_settings.es_index
     type_test = request.node.get_closest_marker("fixt_data").args[0]
     # FIX: эти условия не очень хорошо, надо индекс параметром будет
@@ -67,6 +68,12 @@ def es_data(request) -> list[dict]:
         copy_film_data['id'] = '1123456'
         copy_film_data['imdb_rating'] = 5
         es_data.append(deepcopy(copy_film_data))
+
+    if type_test == 'redis_search':
+        for _ in range(6):
+            copy_film_data['id'] = str(uuid.uuid4())
+            copy_film_data['title'] = 'The Star'
+            es_data.append(deepcopy(copy_film_data))
 
     if type_test == 'phrase':
         for _ in range(3):
@@ -144,14 +151,18 @@ def event_loop():
 
 
 @pytest_asyncio.fixture(name='es_write_data')
-def es_write_data(es_client: AsyncElasticsearch, request):
+def es_write_data(es_client: AsyncElasticsearch, redis_client: Redis, request):
     async def inner(data: list[dict]) -> None:
+        # очистим кэш, чтобы не брать данные из него
+        await redis_client.flushdb()
         type_test = request.node.get_closest_marker("fixt_data").args[0]
         index = test_settings.es_index
         # FIX: эти условия не очень хорошо, надо индекс параметром будет
         # передавать и убрать из settings es_index раз уж у нас 2 индекса
         if type_test == 'limit_genre' or type_test == 'genre' or type_test == 'genre_validation':
             index = 'genres'
+        if type_test == 'limit_person' or type_test == 'person' or type_test == 'person_validation':
+            index = 'persons'
         if await es_client.indices.exists(index=index):
             await es_client.indices.delete(index=index)
         await es_client.indices.create(index=index)

@@ -32,7 +32,7 @@ async def test_person_limit(
     'query_data, expected_answer',
     PARAMETERS['search_person']
 )
-@pytest.mark.fixt_data('peron')
+@pytest.mark.fixt_data('person')
 @pytest.mark.asyncio
 async def test_search_person(
         es_write_data,
