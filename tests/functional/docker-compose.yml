@@ -1,23 +1,27 @@
 version: '3.7'
 
+
+volumes:
+  esdata:
+  redis_data:
+
 services:
-  fastapi:
-    image: fastapi-image
-    build: ../../.
+  app:
+    build: .
     volumes:
       - ../../:/app
     restart: always
     expose:
-      - 8080
+      - 8000
     ports:
-      - 8080:8080
+      - 8000:8000
     depends_on:
-      - elasticsearch-test
-      - redis-test
+      - elasticsearch
+      - redis
     env_file:
       - .env.docker
 
-  elasticsearch-test:
+  elasticsearch:
     image: elasticsearch:8.6.2
     environment:
       - discovery.type=single-node
@@ -26,18 +30,16 @@ services:
     expose:
       - 9200
     ports:
-      - 9300:9200
-    restart: always
+      - 9200:9200
     volumes:
       - esdata:/usr/share/elasticsearch/data
 
-  redis-test:
+  redis:
     image: redis:alpine
     expose:
       - 6379
     ports:
-      - 6380:6379
-    restart: always
+      - 6379:6379
     volumes:
       - redis_data:/var/lib/redis
 
@@ -50,7 +52,6 @@ services:
     restart: always
     volumes:
       - ../..:/tests
+    entrypoint: [ "sh", "-c", "while true; do sleep 3600; done" ]  # Бесконечный цикл с задержкой
 
-volumes:
-  esdata:
-  redis_data:
+
