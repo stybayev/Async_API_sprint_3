@@ -1,7 +1,7 @@
 import pytest
 from tests.functional.testdata.data import PARAMETERS
 from tests.functional.utils.films_utils import get_es_data
-
+from tests.functional.testdata.data import TEST_DATA_PERSON
 
 @pytest.mark.parametrize(
     'query_data, expected_answer',
@@ -47,8 +47,7 @@ async def test_search_person(
     response = await make_get_request('persons', query_data)
     # Проверяем ответ
     assert response.status == expected_answer['status']
-    assert response.body['name'] == expected_answer['name']
-    assert response.body['id'] == expected_answer['id']
+    assert response.body == expected_answer['answer']
 
 
 @pytest.mark.parametrize(
@@ -87,7 +86,7 @@ async def test_films_by_person(
         expected_answer: dict
 ) -> None:
     await es_write_data(es_data, 'movies')
-    data = get_es_data([{'id': 'ef86b8ff-3c82-4d31-ad8e-72b69f4e3f95', 'full_name': 'Ann'}], 'persons')
+    data = get_es_data([TEST_DATA_PERSON], 'persons')
     await es_write_data(data, 'persons')
 
     response = await make_get_request('persons', query_data)

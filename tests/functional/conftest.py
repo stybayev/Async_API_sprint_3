@@ -128,14 +128,13 @@ def es_data(request) -> list[dict]:
         persons_names = ['Ann', 'Bob', 'Ben', 'Howard']
         for name in persons_names:
             copy_person_data['id'] = str(uuid.uuid4())
-            copy_person_data['full_name'] = name
+            copy_person_data['full_name'] = name + ' Test'
             es_data.append(deepcopy(copy_person_data))
 
     if type_test == 'person_films':
         count = 15
         films = generate_films(count=count)
         es_data.extend(films)
-
 
     bulk_query: list[dict] = []
     for row in es_data:
