@@ -1,0 +1,56 @@
+version: '3.7'
+
+services:
+  fastapi:
+    image: fastapi-image
+    build: ../../.
+    volumes:
+      - ../../:/app
+    restart: always
+    expose:
+      - 8080
+    ports:
+      - 8080:8080
+    depends_on:
+      - elasticsearch-test
+      - redis-test
+    env_file:
+      - .env.docker
+
+  elasticsearch-test:
+    image: elasticsearch:8.6.2
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms200m -Xmx200m"
+    expose:
+      - 9200
+    ports:
+      - 9300:9200
+    restart: always
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+
+  redis-test:
+    image: redis:alpine
+    expose:
+      - 6379
+    ports:
+      - 6380:6379
+    restart: always
+    volumes:
+      - redis_data:/var/lib/redis
+
+  tests:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env.docker
+    restart: always
+    volumes:
+      - ../..:/tests
+
+volumes:
+  esdata:
+  redis_data:
