@@ -77,15 +77,19 @@ async def test_search_phrase(
     assert len(response.body) == expected_answer['length']
 
 
-@pytest.mark.fixt_data('limit')
+@pytest.mark.parametrize(
+    'query_data, expected_answer',
+    PARAMETERS['redis_search']
+)
+@pytest.mark.fixt_data('redis_search')
 @pytest.mark.asyncio
 async def test_search_with_redis_cache(
         es_write_data,
         make_get_request,
         redis_client,
         es_data: list[dict],
-        query_data={'films/search': 'Star'},
-        expected_answer: dict = {'status': 200, 'length': 6}
+        query_data,
+        expected_answer
 ) -> None:
     # Загружаем данные в ES
     await es_write_data(es_data, 'movies')

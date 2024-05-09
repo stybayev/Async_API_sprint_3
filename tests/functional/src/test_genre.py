@@ -16,7 +16,7 @@ async def test_genre_limit(
         expected_answer: dict
 ) -> None:
     """
-    Проверяем вывод всех жанров
+    Тест на вывод всех жанров
     :return:
     """
     # Загружаем данные в ES
@@ -41,13 +41,20 @@ async def test_search_genre(
         query_data: dict,
         expected_answer: dict
 ) -> None:
+    """
+    Тест на поиск жанра по идентификатору,
+    в том числе несуществующего жанра
+    """
     # Загружаем данные в ES
     await es_write_data(es_data, 'genres')
     response = await make_get_request('genres', query_data)
     # Проверяем ответ
-    assert response.status == expected_answer['status']
-    assert response.body['name'] == expected_answer['name']
-    assert response.body['id'] == expected_answer['id']
+    if 'id' in expected_answer:
+        assert response.status == expected_answer['status']
+        assert response.body['name'] == expected_answer['name']
+        assert response.body['id'] == expected_answer['id']
+    else:
+        assert response.body['detail'] == expected_answer['answer']
 
 
 @pytest.mark.parametrize(
