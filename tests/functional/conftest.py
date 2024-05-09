@@ -10,7 +10,7 @@ from copy import deepcopy
 from redis.asyncio.client import Redis
 
 from tests.functional.settings import test_settings
-from tests.functional.testdata.data import TEST_DATA, TEST_DATA_GENRE
+from tests.functional.testdata.data import TEST_DATA, TEST_DATA_GENRE, TEST_DATA_PERSON
 from tests.functional.utils.dc_objects import Response
 from tests.functional.utils.films_utils import generate_films
 
@@ -39,10 +39,15 @@ def es_data(request) -> list[dict]:
     type_test = request.node.get_closest_marker("fixt_data").args[0]
     # FIX: эти условия не очень хорошо, надо индекс параметром будет
     # передавать и убрать из settings es_index раз уж у нас 2 индекса
+    # TODO Согласен индекс нужно передать как параметр, а в settings можно добавить все индексы или убрать
     if type_test == 'genre' or type_test == 'limit_genre' or type_test == 'genre_validation':
         index = 'genres'
+    if type_test == 'person' or type_test == 'limit_person' or type_test == 'person_validation':
+        index = 'persons'
+
     copy_film_data = deepcopy(TEST_DATA)
     copy_genre_data = deepcopy(TEST_DATA_GENRE)
+    copy_person_data = deepcopy(TEST_DATA_PERSON)
     # Генерируем данные для ES
     if type_test == 'limit':
         for _ in range(60):
@@ -108,10 +113,18 @@ def es_data(request) -> list[dict]:
     if type_test == 'genre':
         es_data.append(deepcopy(copy_genre_data))
         genres = ['Melodrama', 'Sci-Fi', 'Comedy', 'Tragedy']
-        for _ in range(4):
+        for genre in genres:
             copy_genre_data['id'] = str(uuid.uuid4())
-            copy_genre_data['name'] = genres[_]
+            copy_genre_data['name'] = genre
             es_data.append(deepcopy(copy_genre_data))
+
+    if type_test == 'person':
+        es_data.append(deepcopy(copy_person_data))
+        persons_names = ['Ann', 'Bob', 'Ben', 'Howard']
+        for name in persons_names:
+            copy_person_data['id'] = str(uuid.uuid4())
+            copy_person_data['name'] = name
+            es_data.append(deepcopy(copy_person_data))
 
     bulk_query: list[dict] = []
 

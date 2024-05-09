@@ -23,6 +23,8 @@ TEST_DATA_GENRE = {
     'description': 'description'
 }
 
+TEST_DATA_PERSON = {'id': 'adb5ffa8-7dbc-4088-8e5f-44311680a75c', 'name': 'Ann'}
+
 PARAMETERS = {
     'phrase': [
         (
@@ -82,6 +84,12 @@ PARAMETERS = {
             {'status': 200, 'length': 10}
         )
     ],
+    'limit_persons': [
+        (
+            {'persons': ''},
+            {'status': 200, 'length': 10}
+        )
+    ],
 
     'all_films': [
         (
@@ -104,9 +112,29 @@ PARAMETERS = {
             }
         )
     ],
+    'search_person': [
+        (
+            {
+                'id': 'ef86b8ff-3c82-4d31-ad8e-72b69f4e3f95',
+                'persons': '',
+            },
+            {
+                'status': 200,
+                'length': 1,
+                'full_name': 'Ann',
+                'id': 'ef86b8ff-3c82-4d31-ad8e-72b69f4e3f95'
+            }
+        )
+    ],
     'genre_validation': [
         (
             {'genres': ''},
+            {'status': 200, 'length': 10}
+        )
+    ],
+    'person_validation': [
+        (
+            {'persons': ''},
             {'status': 200, 'length': 10}
         )
     ]
