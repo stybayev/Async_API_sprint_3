@@ -10,6 +10,5 @@ es_url = f"http://{es_host}:{es_port}"
 if __name__ == '__main__':
     es_client = Elasticsearch(hosts=[es_url], verify_certs=False)
     while not es_client.ping():
-        print("Waiting for Elasticsearch to be ready...")
         break
-    print("Waiting for Elasticsearch to be ready...123")
+    time.sleep(1)

@@ -52,8 +52,9 @@ services:
     restart: always
     volumes:
       - ../..:/tests
-    # entrypoint: [ "sh", "-c", "while true; do sleep 3600; done" ]  # Бесконечный цикл с задержкой
     entrypoint: >
-      sh -c "pytest tests/functional/src"
+      sh -c "python3 tests/functional/utils/wait_for_es.py
+      && python3 tests/functional/utils/wait_for_redis.py
+      && pytest tests/functional/src"
 
 
