@@ -9,7 +9,7 @@ if __name__ == '__main__':
     r = redis.Redis(host=redis_host, port=redis_port)
     while True:
         try:
-            r.get("none")
+            r.get('none')
             break
         except redis.exceptions.ConnectionError:
             time.sleep(1)
