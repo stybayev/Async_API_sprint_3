@@ -25,7 +25,7 @@ async def test_get_film_by_id(
     :return: None
     """
     # Загружаем данные в ES
-    await es_write_data(es_data)
+    await es_write_data(es_data, 'movies')
     response = await make_get_request('films', query_data)
     # Проверяем ответ
     assert response.status == expected_answer['status']
@@ -49,7 +49,7 @@ async def test_get_all_films(
         expected_answer: dict
 ) -> None:
     # Загружаем данные в ES
-    await es_write_data(es_data)
+    await es_write_data(es_data, 'movies')
     response = await make_get_request('films', query_data)
     # Проверяем ответ
     assert response.status == expected_answer['status']
