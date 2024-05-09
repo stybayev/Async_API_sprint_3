@@ -44,7 +44,6 @@ def es_data(request) -> list[dict]:
         index = 'genres'
     if type_test == 'person' or type_test == 'limit_person' or type_test == 'person_validation':
         index = 'persons'
-
     copy_film_data = deepcopy(TEST_DATA)
     copy_genre_data = deepcopy(TEST_DATA_GENRE)
     copy_person_data = deepcopy(TEST_DATA_PERSON)
@@ -87,6 +86,12 @@ def es_data(request) -> list[dict]:
             copy_genre_data['name'] = f'Action{_}'
             es_data.append(deepcopy(copy_genre_data))
 
+    if type_test == 'limit_person':
+        for i in range(60):
+            copy_person_data['id'] = str(uuid.uuid4())
+            copy_person_data['full_name'] = f'Test_person{i}'
+            es_data.append(deepcopy(copy_person_data))
+
     if type_test == 'genre_validation':
         for _ in range(3):
             copy_genre_data['id'] = str(uuid.uuid4())
@@ -123,11 +128,10 @@ def es_data(request) -> list[dict]:
         persons_names = ['Ann', 'Bob', 'Ben', 'Howard']
         for name in persons_names:
             copy_person_data['id'] = str(uuid.uuid4())
-            copy_person_data['name'] = name
+            copy_person_data['fUll_name'] = name
             es_data.append(deepcopy(copy_person_data))
 
     bulk_query: list[dict] = []
-
     for row in es_data:
         data = {'_index': index, '_id': row['id']}
         data.update({'_source': row})
@@ -145,17 +149,13 @@ def event_loop():
 
 @pytest_asyncio.fixture(name='es_write_data')
 def es_write_data(es_client: AsyncElasticsearch, request):
-    async def inner(data: list[dict]) -> None:
-        type_test = request.node.get_closest_marker("fixt_data").args[0]
-        index = test_settings.es_index
-        # FIX: эти условия не очень хорошо, надо индекс параметром будет
-        # передавать и убрать из settings es_index раз уж у нас 2 индекса
-        if type_test == 'limit_genre' or type_test == 'genre' or type_test == 'genre_validation':
-            index = 'genres'
+    async def inner(data: list[dict], index: str) -> None:
         if await es_client.indices.exists(index=index):
             await es_client.indices.delete(index=index)
+
         await es_client.indices.create(index=index)
-        # refresh="wait_for" - опция для ожидания обновления индекса после
+
+        # refresh="wait_for" - опция для ожидания обновления индекса после выполнения async_bulk
         updated, errors = await async_bulk(client=es_client, actions=data, refresh="wait_for")
 
         if errors:

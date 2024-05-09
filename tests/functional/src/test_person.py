@@ -20,7 +20,7 @@ async def test_person_limit(
     :return:
     """
     # Загружаем данные в ES
-    await es_write_data(es_data)
+    await es_write_data(es_data, 'persons')
     response = await make_get_request('persons', query_data)
 
     # Проверяем ответ
@@ -32,7 +32,7 @@ async def test_person_limit(
     'query_data, expected_answer',
     PARAMETERS['search_person']
 )
-@pytest.mark.fixt_data('peron')
+@pytest.mark.fixt_data('person')
 @pytest.mark.asyncio
 async def test_search_person(
         es_write_data,
@@ -42,7 +42,7 @@ async def test_search_person(
         expected_answer: dict
 ) -> None:
     # Загружаем данные в ES
-    await es_write_data(es_data)
+    await es_write_data(es_data, 'persons')
     response = await make_get_request('persons', query_data)
     # Проверяем ответ
     assert response.status == expected_answer['status']
@@ -65,7 +65,7 @@ async def test_validation_person(
 ) -> None:
     # FIX: Тест пока не проходит, потому что можно писать кривые uuid в базу. Надо поправить этот момент
     # Загружаем данные в ES
-    await es_write_data(es_data)
+    await es_write_data(es_data, 'persons')
     response = await make_get_request('persons', query_data)
     # Проверяем ответ
     assert response.status == expected_answer['status']

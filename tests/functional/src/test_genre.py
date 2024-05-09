@@ -20,7 +20,7 @@ async def test_genre_limit(
     :return:
     """
     # Загружаем данные в ES
-    await es_write_data(es_data)
+    await es_write_data(es_data, 'genres')
     response = await make_get_request('genres', query_data)
 
     # Проверяем ответ
@@ -42,7 +42,7 @@ async def test_search_genre(
         expected_answer: dict
 ) -> None:
     # Загружаем данные в ES
-    await es_write_data(es_data)
+    await es_write_data(es_data, 'genres')
     response = await make_get_request('genres', query_data)
     # Проверяем ответ
     assert response.status == expected_answer['status']
@@ -65,7 +65,7 @@ async def test_validation_genre(
 ) -> None:
     # FIX: Тест пока не проходит, потому что можно писать кривые uuid в базу. Надо поправить этот момент
     # Загружаем данные в ES
-    await es_write_data(es_data)
+    await es_write_data(es_data, 'genres')
     response = await make_get_request('genres', query_data)
     # Проверяем ответ
     assert response.status == expected_answer['status']
