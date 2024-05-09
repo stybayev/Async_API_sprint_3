@@ -11,10 +11,10 @@ else:
 
 
 class TestSettings(BaseSettings):
-    es_host: str = Field('http://127.0.0.1:9200', env='ELASTIC_HOST')
+    es_host: str = Field('http://elasticsearch-test:9200', env='ELASTIC_HOST')
     es_index: str = Field(default='movies')
     redis_host: str = Field(default=os.getenv('REDIS_HOST', 'localhost'))
-    service_url: str = Field(default='http://127.0.0.1:8000', env='SERVICE_URL')
+    service_url: str = Field(default='http://fastapi:8080', env='SERVICE_URL')
     # es_mapping = {
     #     "movies": {
     #         "mappings": {
@@ -146,6 +146,5 @@ class TestSettings(BaseSettings):
     #         }
     #     }
     # }
-
 
 test_settings = TestSettings()
