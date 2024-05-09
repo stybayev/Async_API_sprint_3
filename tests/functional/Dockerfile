@@ -9,7 +9,4 @@ RUN pip install -r requirements.txt
 # Копирование тестового кода
 COPY . /tests/
 
-# Команда для запуска тестов
-CMD ["pytest", "/tests/functional/src/"]
-
 

@@ -53,5 +53,7 @@ services:
     volumes:
       - ../..:/tests
     # entrypoint: [ "sh", "-c", "while true; do sleep 3600; done" ]  # Бесконечный цикл с задержкой
+    entrypoint: >
+      sh -c "pytest tests/functional/src"
 
 
