@@ -20,7 +20,7 @@ async def test_genre_limit(
     :return:
     """
     # Загружаем данные в ES
-    await es_write_data(es_data)
+    await es_write_data(es_data, 'genres')
     response = await make_get_request('genres', query_data)
 
     # Проверяем ответ
@@ -46,7 +46,7 @@ async def test_search_genre(
     в том числе несуществующего жанра
     """
     # Загружаем данные в ES
-    await es_write_data(es_data)
+    await es_write_data(es_data, 'genres')
     response = await make_get_request('genres', query_data)
     # Проверяем ответ
     if 'id' in expected_answer:
@@ -73,8 +73,9 @@ async def test_validation_genre(
     """
     Тест на валидность всех данных
     """
-    # загружаем данные в ES
-    await es_write_data(es_data)
+    
+    await es_write_data(es_data, 'genres')
+
     response = await make_get_request('genres', query_data)
     # Проверяем ответ
     assert response.status == expected_answer['status']
