@@ -35,6 +35,7 @@ async def session_client() -> aiohttp.ClientSession:
 @pytest_asyncio.fixture()
 def es_data(request) -> list[dict]:
     es_data = []
+
     index = test_settings.es_index
     type_test = request.node.get_closest_marker("fixt_data").args[0]
     # FIX: эти условия не очень хорошо, надо индекс параметром будет
@@ -66,6 +67,12 @@ def es_data(request) -> list[dict]:
         copy_film_data['id'] = '1123456'
         copy_film_data['imdb_rating'] = 5
         es_data.append(deepcopy(copy_film_data))
+
+    if type_test == 'redis_search':
+        for _ in range(6):
+            copy_film_data['id'] = str(uuid.uuid4())
+            copy_film_data['title'] = 'The Star'
+            es_data.append(deepcopy(copy_film_data))
 
     if type_test == 'phrase':
         for _ in range(3):
@@ -153,8 +160,11 @@ def event_loop():
 
 
 @pytest_asyncio.fixture(name='es_write_data')
-def es_write_data(es_client: AsyncElasticsearch, request):
+
+def es_write_data(es_client: AsyncElasticsearch, redis_client: Redis, request):
     async def inner(data: list[dict], index: str) -> None:
+
+        await redis_client.flushdb()
         if await es_client.indices.exists(index=index):
             await es_client.indices.delete(index=index)
 
