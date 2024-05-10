@@ -41,7 +41,8 @@ def es_data(request) -> list[dict]:
     # FIX: эти условия не очень хорошо, надо индекс параметром будет
     # передавать и убрать из settings es_index раз уж у нас 2 индекса
     # TODO Согласен индекс нужно передать как параметр, а в settings можно добавить все индексы или убрать
-    if type_test == 'genre' or type_test == 'limit_genre' or type_test == 'genre_validation':
+    if (type_test == 'genre' or type_test == 'limit_genre' or
+            type_test == 'genre_validation' or type_test == 'redis_genre'):
         index = 'genres'
     if type_test == 'person' or type_test == 'limit_person' or type_test == 'person_validation':
         index = 'persons'
@@ -73,6 +74,10 @@ def es_data(request) -> list[dict]:
             copy_film_data['id'] = str(uuid.uuid4())
             copy_film_data['title'] = 'The Star'
             es_data.append(deepcopy(copy_film_data))
+
+    if type_test == 'redis_genre':
+        copy_genre_data = deepcopy(TEST_DATA_GENRE)
+        es_data.append(deepcopy(copy_genre_data))
 
     if type_test == 'phrase':
         for _ in range(3):
@@ -120,9 +125,8 @@ def es_data(request) -> list[dict]:
             copy_film_data['id'] = str(uuid.uuid4())
             es_data.append(deepcopy(copy_film_data))
 
-    copy_genre_data = deepcopy(TEST_DATA_GENRE)
-
     if type_test == 'genre':
+        copy_genre_data = deepcopy(TEST_DATA_GENRE)
         es_data.append(deepcopy(copy_genre_data))
         genres = ['Melodrama', 'Sci-Fi', 'Comedy', 'Tragedy']
         for genre in genres:
@@ -162,7 +166,6 @@ def event_loop():
 @pytest_asyncio.fixture(name='es_write_data')
 def es_write_data(es_client: AsyncElasticsearch, redis_client: Redis, request):
     async def inner(data: list[dict], index: str) -> None:
-
         await redis_client.flushdb()
         if await es_client.indices.exists(index=index):
             await es_client.indices.delete(index=index)
