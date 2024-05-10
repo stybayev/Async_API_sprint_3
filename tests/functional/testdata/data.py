@@ -62,6 +62,16 @@ PARAMETERS = {
             {'status': 200, 'length': 6}
         )
     ],
+    'redis_genre': [
+        (
+            {'genres': '', 'id': 'adb5ffa8-7dbc-4088-8e5f-44311680a75c'},
+            {
+                'status': 200,
+                'name': 'Action',
+                'id': 'adb5ffa8-7dbc-4088-8e5f-44311680a75c'
+            }
+        )
+    ],
     'film_search': [
         (
             {
