@@ -3,6 +3,8 @@ venv/
 .vscode/
 __pycache__/
 .*env
+env/
+tests/functional/.env.test
 questions
 .idea
 *.DS_Store
