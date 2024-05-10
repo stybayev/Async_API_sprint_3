@@ -7,7 +7,7 @@ volumes:
 
 services:
   app:
-    build: .
+    build: ../../.
     volumes:
       - ../../:/app
     restart: always
@@ -52,8 +52,4 @@ services:
     restart: always
     volumes:
       - ../..:/tests
-    entrypoint: >
-      sh -c "python3 tests/functional/utils/wait_for_es.py
-      && python3 tests/functional/utils/wait_for_redis.py
-      && pytest tests/functional/src -p no:warnings"
 
