@@ -72,6 +72,16 @@ PARAMETERS = {
             }
         )
     ],
+    'redis_person': [
+        (
+            {'persons': '', 'id': TEST_DATA_PERSON['id']},
+            {
+                'status': 200,
+                'full_name': 'Ann',
+                'id': TEST_DATA_PERSON['id']
+            }
+        )
+    ],
     'film_search': [
         (
             {
@@ -165,7 +175,7 @@ PARAMETERS = {
     'person_validation': [
         (
             {'persons': ''},
-            {'status': 200, 'length': 10}
+            {'status': 200, 'length': 4}
         )
     ],
     'person_films': [

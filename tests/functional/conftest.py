@@ -89,6 +89,10 @@ def es_data(request) -> list[dict]:
         copy_genre_data = deepcopy(TEST_DATA_GENRE)
         es_data.append(deepcopy(copy_genre_data))
 
+    if type_test == 'redis_person':
+        copy_person_data = deepcopy(TEST_DATA_PERSON)
+        es_data.append(deepcopy(copy_person_data))
+
     if type_test == 'phrase':
         for _ in range(3):
             copy_film_data['id'] = str(uuid.uuid4())
@@ -122,6 +126,15 @@ def es_data(request) -> list[dict]:
         copy_genre_data['id'] = '123456'
         copy_genre_data['name'] = f'Action'
         es_data.append(deepcopy(copy_genre_data))
+
+    if type_test == 'person_validation':
+        for i in range(3):
+            copy_person_data['id'] = str(uuid.uuid4())
+            copy_person_data['name'] = f'Test{i}'
+            es_data.append(deepcopy(copy_person_data))
+        copy_person_data['id'] = '123456'
+        copy_person_data['name'] = f'Ann'
+        es_data.append(deepcopy(copy_person_data))
 
     if type_test == 'all_films':
         count = random.randint(50, 100)

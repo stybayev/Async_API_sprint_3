@@ -15,7 +15,7 @@ class TestSettings(BaseSettings):
                 'film', 'all_films', 'films_validation'
             ],
         'genres': ['limit_genre', 'genre_validation', 'redis_genre', 'genre'],
-        'persons': ['limit_person', 'person', 'person_validation', 'person_films']
+        'persons': ['limit_person', 'person', 'person_validation', 'person_films', 'redis_person']
     }
     redis_host: str = Field(default=os.getenv('TEST_REDIS_HOST', 'localhost'))
     redis_port: int = Field(default=os.getenv('TEST_REDIS_PORT', 6379))
