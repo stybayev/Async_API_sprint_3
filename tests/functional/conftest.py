@@ -160,7 +160,6 @@ def event_loop():
 
 
 @pytest_asyncio.fixture(name='es_write_data')
-
 def es_write_data(es_client: AsyncElasticsearch, redis_client: Redis, request):
     async def inner(data: list[dict], index: str) -> None:
 
@@ -199,7 +198,9 @@ def make_get_request(session_client):
 
 @pytest_asyncio.fixture(scope='session')
 async def redis_client():
-    client = Redis(host=test_settings.redis_host, decode_responses=True)
+    client = Redis(host=test_settings.redis_host,
+                   port=test_settings.redis_port,
+                   decode_responses=True)
     yield client
     await client.flushdb()
     await client.close()
