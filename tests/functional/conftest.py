@@ -156,18 +156,9 @@ def event_loop():
 
 @pytest_asyncio.fixture(name='es_write_data')
 def es_write_data(es_client: AsyncElasticsearch, redis_client: Redis, request):
-    async def inner(data: list[dict]) -> None:
+    async def inner(data: list[dict], index) -> None:
         # очистим кэш, чтобы не брать данные из него
         await redis_client.flushdb()
-        type_test = request.node.get_closest_marker("fixt_data").args[0]
-        index = test_settings.es_index
-        # FIX: эти условия не очень хорошо, надо индекс параметром будет
-        # передавать и убрать из settings es_index раз уж у нас 2 индекса
-        if (type_test == 'limit_genre' or type_test == 'genre'
-                or type_test == 'genre_validation' or type_test == 'redis_genre'):
-            index = 'genres'
-        if type_test == 'limit_person' or type_test == 'person' or type_test == 'person_validation':
-            index = 'persons'
         if await es_client.indices.exists(index=index):
             await es_client.indices.delete(index=index)
         await es_client.indices.create(index=index)
