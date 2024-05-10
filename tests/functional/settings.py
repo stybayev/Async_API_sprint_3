@@ -11,7 +11,7 @@ class TestSettings(BaseSettings):
     es_index: dict = {
         'movies':
             [
-                'redis_search', 'limit', 'validation', 'phrase',
+                'redis_search', 'redis_film','limit', 'validation', 'phrase',
                 'film', 'all_films', 'films_validation'
             ],
         'genres': ['limit_genre', 'genre_validation', 'redis_genre', 'genre'],
