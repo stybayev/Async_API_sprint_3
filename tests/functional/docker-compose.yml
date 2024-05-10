@@ -1,27 +1,34 @@
 version: '3.7'
 
-
 volumes:
-  esdata:
-  redis_data:
+  test_esdata:
+  test_redis_data:
+
+networks:
+  test_network:
+    driver: bridge
 
 services:
   app:
-    build: .
+    container_name: test_app
+    build: ../../.
     volumes:
       - ../../:/app
     restart: always
     expose:
       - 8000
     ports:
-      - 8000:8000
+      - 8001:8000
     depends_on:
       - elasticsearch
       - redis
     env_file:
       - .env.test
+    networks:
+      - test_network
 
   elasticsearch:
+    container_name: test_elasticsearch
     image: elasticsearch:8.6.2
     environment:
       - discovery.type=single-node
@@ -30,20 +37,26 @@ services:
     expose:
       - 9200
     ports:
-      - 9200:9200
+      - 9201:9200
     volumes:
-      - esdata:/usr/share/elasticsearch/data
+      - test_esdata:/usr/share/elasticsearch/data
+    networks:
+      - test_network
 
   redis:
+    container_name: test_redis
     image: redis:alpine
     expose:
       - 6379
     ports:
-      - 6379:6379
+      - 6378:6379
     volumes:
-      - redis_data:/var/lib/redis
+      - test_redis_data:/var/lib/redis
+    networks:
+      - test_network
 
   tests:
+    container_name: test_runner
     build:
       context: .
       dockerfile: Dockerfile
@@ -52,9 +65,5 @@ services:
     restart: always
     volumes:
       - ../..:/tests
-    entrypoint: >
-      sh -c "python3 tests/functional/utils/wait_for_es.py
-      && python3 tests/functional/utils/wait_for_redis.py
-      && pytest tests/functional/src"
-
-
+    networks:
+      - test_network

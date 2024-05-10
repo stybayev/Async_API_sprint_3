@@ -75,7 +75,6 @@ async def test_validation_genre(
     """
     Тест на валидность всех данных
     """
-    # загружаем данные в ES
     await es_write_data(es_data, 'genres')
     response = await make_get_request('genres', query_data)
     # Проверяем ответ

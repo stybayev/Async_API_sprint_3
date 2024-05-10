@@ -1,9 +1,11 @@
-from fastapi import APIRouter, Depends, Query, Path
-
-from app.models.persons import BasePersonModel
-from app.models.film import Films
-from app.services.person import get_person_service, PersonsService
+from http import HTTPStatus
 from uuid import UUID
+
+from fastapi import APIRouter, Depends, HTTPException, Query, Path
+
+from app.models.film import Films
+from app.models.persons import BasePersonModel
+from app.services.person import get_person_service, PersonsService
 
 router = APIRouter()
 
@@ -18,7 +20,11 @@ async def get_person_by_id(
 
     - **person_id**: id персоны
     """
-    return await person_service.get_by_id(person_id)
+    person = await person_service.get_by_id(person_id)
+    if not person:
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND,
+                            detail='person not found')
+    return person
 
 
 @router.get("/", response_model=list[BasePersonModel])
