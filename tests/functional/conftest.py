@@ -217,7 +217,7 @@ def es_write_data(es_client: AsyncElasticsearch, redis_client: Redis, request):
 @pytest_asyncio.fixture(name='make_get_request')
 def make_get_request(session_client):
     async def inner(type_api, query_data) -> Response:
-        url = test_settings.service_url + '/api/v1/' + type_api + '/'
+        url = f'{test_settings.service_url}/api/v1/{type_api}/'
         if 'id' in query_data:
             url += query_data['id']
         get_params = {'query': query_data.get(type_api)}
