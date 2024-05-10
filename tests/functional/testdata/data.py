@@ -62,6 +62,23 @@ PARAMETERS = {
             {'status': 200, 'length': 6}
         )
     ],
+    'redis_films': [
+        (
+            {'films/': 'Star'},
+            {'status': 200, 'length': 6}
+        )
+    ],
+
+    'redis_films_id': [
+        (
+            {'id': 'ffc3df9f-a17e-4bae-b0b6-c9c4da290fdd'},
+            {
+                'status': 200,
+                'title': 'The Star',
+                'id': 'ffc3df9f-a17e-4bae-b0b6-c9c4da290fdd'
+            }
+        )
+    ],
     'redis_genre': [
         (
             {'genres': '', 'id': 'adb5ffa8-7dbc-4088-8e5f-44311680a75c'},
@@ -69,6 +86,16 @@ PARAMETERS = {
                 'status': 200,
                 'name': 'Action',
                 'id': 'adb5ffa8-7dbc-4088-8e5f-44311680a75c'
+            }
+        )
+    ],
+    'redis_person': [
+        (
+            {'persons': '', 'id': TEST_DATA_PERSON['id']},
+            {
+                'status': 200,
+                'full_name': 'Ann',
+                'id': TEST_DATA_PERSON['id']
             }
         )
     ],
@@ -156,10 +183,16 @@ PARAMETERS = {
             {'status': 200, 'length': 3}
         )
     ],
+    'films_validation': [
+        (
+            {'films': ''},
+            {'status': 200, 'length': 3}
+        )
+    ],
     'person_validation': [
         (
             {'persons': ''},
-            {'status': 200, 'length': 10}
+            {'status': 200, 'length': 4}
         )
     ],
     'person_films': [

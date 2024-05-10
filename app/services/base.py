@@ -61,7 +61,7 @@ class BaseService:
 
     async def _put_entity_to_cache(self, entity: BaseMixin):
         await self.redis.set(
-            f"{self.index_name}:{entity.id}",
+            f'{self.index_name}:{entity.id}',
             entity.json(),
             self.cache_timeout,
         )

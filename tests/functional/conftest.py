@@ -35,16 +35,13 @@ async def session_client() -> aiohttp.ClientSession:
 @pytest_asyncio.fixture()
 def es_data(request) -> list[dict]:
     es_data = []
-    index = test_settings.es_index
     type_test = request.node.get_closest_marker("fixt_data").args[0]
-    # FIX: эти условия не очень хорошо, надо индекс параметром будет
-    # передавать и убрать из settings es_index раз уж у нас 2 индекса
-    # TODO Согласен индекс нужно передать как параметр, а в settings можно добавить все индексы или убрать
-    if (type_test == 'genre' or type_test == 'limit_genre' or
-            type_test == 'genre_validation' or type_test == 'redis_genre'):
-        index = 'genres'
-    if type_test == 'person' or type_test == 'limit_person' or type_test == 'person_validation':
-        index = 'persons'
+    index = 'movies'
+    # выберем по какому индексу будет проходить тест
+    for setting_index in test_settings.es_index:
+        if type_test in test_settings.es_index[setting_index]:
+            index = setting_index
+
     copy_film_data = deepcopy(TEST_DATA)
     copy_genre_data = deepcopy(TEST_DATA_GENRE)
     copy_person_data = deepcopy(TEST_DATA_PERSON)
@@ -68,15 +65,43 @@ def es_data(request) -> list[dict]:
         copy_film_data['imdb_rating'] = 5
         es_data.append(deepcopy(copy_film_data))
 
+    if type_test == 'films_validation':
+        for _ in range(3):
+            copy_film_data['id'] = str(uuid.uuid4())
+            es_data.append(deepcopy(copy_film_data))
+        # добавляем фильм с невалидным id
+        copy_film_data['id'] = '123456'
+        es_data.append(deepcopy(copy_film_data))
+        # добавляем фильм с невалидным рейтингом
+        copy_film_data['id'] = str(uuid.uuid4())
+        copy_film_data['imdb_rating'] = 15
+        es_data.append(deepcopy(copy_film_data))
+        copy_film_data['id'] = str(uuid.uuid4())
+        copy_film_data['imdb_rating'] = -2
+
     if type_test == 'redis_search':
         for _ in range(6):
             copy_film_data['id'] = str(uuid.uuid4())
             copy_film_data['title'] = 'The Star'
             es_data.append(deepcopy(copy_film_data))
 
+    if type_test == 'redis_films':
+        for _ in range(6):
+            copy_film_data['id'] = str(uuid.uuid4())
+            copy_film_data['title'] = 'The Star'
+            es_data.append(deepcopy(copy_film_data))
+
+    if type_test == 'redis_films_id':
+        copy_films_data = deepcopy(TEST_DATA)
+        es_data.append(deepcopy(copy_films_data))
+
     if type_test == 'redis_genre':
         copy_genre_data = deepcopy(TEST_DATA_GENRE)
         es_data.append(deepcopy(copy_genre_data))
+
+    if type_test == 'redis_person':
+        copy_person_data = deepcopy(TEST_DATA_PERSON)
+        es_data.append(deepcopy(copy_person_data))
 
     if type_test == 'phrase':
         for _ in range(3):
@@ -192,7 +217,7 @@ def es_write_data(es_client: AsyncElasticsearch, redis_client: Redis, request):
 @pytest_asyncio.fixture(name='make_get_request')
 def make_get_request(session_client):
     async def inner(type_api, query_data) -> Response:
-        url = test_settings.service_url + '/api/v1/' + type_api + '/'
+        url = f'{test_settings.service_url}/api/v1/{type_api}/'
         if 'id' in query_data:
             url += query_data['id']
         get_params = {'query': query_data.get(type_api)}
