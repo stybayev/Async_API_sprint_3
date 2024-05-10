@@ -1,7 +1,8 @@
-from fastapi import APIRouter, Depends, Query, Path
+from fastapi import APIRouter, Depends, Query, Path, HTTPException
 
 from app.db.elastic import get_elastic, AsyncElasticsearch
 from app.models.genre import Genre
+from http import HTTPStatus
 from uuid import UUID
 
 from app.services.base import BaseService
@@ -14,7 +15,11 @@ router = APIRouter()
 async def get_genre_by_id(
         genre_id: UUID = Path(..., description="Genre's ID"),
         service: GenreService = Depends(get_genre_service)) -> Genre:
-    return await service.get_by_id(genre_id)
+    genre = await service.get_by_id(genre_id)
+    if not genre:
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND,
+                            detail='genre not found')
+    return genre
 
 
 @router.get("/", response_model=list[Genre])

@@ -53,8 +53,24 @@ PARAMETERS = {
     'validation': [
         (
             {'films/search': 'The Star'},
-            {'status': 200, 'length': 10}
+            {'status': 200, 'length': 3}
         ),
+    ],
+    'redis_search': [
+        (
+            {'films/search': 'Star'},
+            {'status': 200, 'length': 6}
+        )
+    ],
+    'redis_genre': [
+        (
+            {'genres': '', 'id': 'adb5ffa8-7dbc-4088-8e5f-44311680a75c'},
+            {
+                'status': 200,
+                'name': 'Action',
+                'id': 'adb5ffa8-7dbc-4088-8e5f-44311680a75c'
+            }
+        )
     ],
     'film_search': [
         (
@@ -110,6 +126,16 @@ PARAMETERS = {
                 'name': 'Action',
                 'id': 'adb5ffa8-7dbc-4088-8e5f-44311680a75c'
             }
+        ),
+        (
+            {
+                'id': 'adb5ffa8-7dbc-4088-8e5f-44311680a76c',
+                'genres': ''
+            },
+            {
+                'status': 404,
+                'answer': 'genre not found'
+            }
         )
     ],
     'search_person': [
@@ -127,7 +153,13 @@ PARAMETERS = {
     'genre_validation': [
         (
             {'genres': ''},
-            {'status': 200, 'length': 10}
+            {'status': 200, 'length': 3}
+        )
+    ],
+    'films_validation': [
+        (
+            {'films': ''},
+            {'status': 200, 'length': 3}
         )
     ],
     'person_validation': [

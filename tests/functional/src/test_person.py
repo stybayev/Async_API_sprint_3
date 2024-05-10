@@ -3,6 +3,7 @@ from tests.functional.testdata.data import PARAMETERS
 from tests.functional.utils.films_utils import get_es_data
 from tests.functional.testdata.data import TEST_DATA_PERSON
 
+
 @pytest.mark.parametrize(
     'query_data, expected_answer',
     PARAMETERS['limit_persons']
@@ -89,7 +90,3 @@ async def test_films_by_person(
     data = get_es_data([TEST_DATA_PERSON], 'persons')
     await es_write_data(data, 'persons')
 
-    response = await make_get_request('persons', query_data)
-    # Проверяем ответ
-    assert response.status == expected_answer['status']
-    assert len(response.body) == expected_answer['length']

@@ -1,151 +1,25 @@
 import os
-
 from pydantic import Field
 from pydantic_settings import BaseSettings
 from dotenv import load_dotenv
 
-if os.path.exists('/.dockerenv'):
-    load_dotenv()
-else:
-    load_dotenv(dotenv_path='.env.local')
+load_dotenv(dotenv_path='.env.test')
 
 
 class TestSettings(BaseSettings):
-    es_host: str = Field('http://127.0.0.1:9200', env='ELASTIC_HOST')
-    es_index: str = Field(default='movies')
-    redis_host: str = Field(default=os.getenv('REDIS_HOST', 'localhost'))
-    service_url: str = Field(default='http://127.0.0.1:8000', env='SERVICE_URL')
-    # es_mapping = {
-    #     "movies": {
-    #         "mappings": {
-    #             "dynamic": "strict",
-    #             "properties": {
-    #                 "actors": {
-    #                     "type": "nested",
-    #                     "dynamic": "strict",
-    #                     "properties": {
-    #                         "id": {
-    #                             "type": "keyword"
-    #                         },
-    #                         "name": {
-    #                             "type": "text",
-    #                             "analyzer": "ru_en"
-    #                         }
-    #                     }
-    #                 },
-    #                 "actors_names": {
-    #                     "type": "text",
-    #                     "fields": {
-    #                         "raw": {
-    #                             "type": "keyword"
-    #                         }
-    #                     },
-    #                     "analyzer": "ru_en"
-    #                 },
-    #                 "description": {
-    #                     "type": "text",
-    #                     "analyzer": "ru_en"
-    #                 },
-    #                 "director": {
-    #                     "dynamic": "strict",
-    #                     "properties": {
-    #                         "id": {
-    #                             "type": "keyword"
-    #                         },
-    #                         "name": {
-    #                             "type": "text",
-    #                             "fields": {
-    #                                 "raw": {
-    #                                     "type": "keyword"
-    #                                 }
-    #                             },
-    #                             "analyzer": "ru_en"
-    #                         }
-    #                     }
-    #                 },
-    #                 "genre": {
-    #                     "type": "keyword"
-    #                 },
-    #                 "id": {
-    #                     "type": "keyword"
-    #                 },
-    #                 "imdb_rating": {
-    #                     "type": "float"
-    #                 },
-    #                 "title": {
-    #                     "type": "text",
-    #                     "fields": {
-    #                         "raw": {
-    #                             "type": "keyword"
-    #                         }
-    #                     },
-    #                     "analyzer": "ru_en"
-    #                 },
-    #                 "writers": {
-    #                     "type": "nested",
-    #                     "dynamic": "strict",
-    #                     "properties": {
-    #                         "id": {
-    #                             "type": "keyword"
-    #                         },
-    #                         "name": {
-    #                             "type": "text",
-    #                             "analyzer": "ru_en"
-    #                         }
-    #                     }
-    #                 },
-    #                 "writers_names": {
-    #                     "type": "text",
-    #                     "fields": {
-    #                         "raw": {
-    #                             "type": "keyword"
-    #                         }
-    #                     },
-    #                     "analyzer": "ru_en"
-    #                 }
-    #             }
-    #         }
-    #     },
-    #     "persons": {
-    #         "mappings": {
-    #             "dynamic": "strict",
-    #             "properties": {
-    #                 "full_name": {
-    #                     "type": "text",
-    #                     "fields": {
-    #                         "raw": {
-    #                             "type": "keyword"
-    #                         }
-    #                     }
-    #                 },
-    #                 "id": {
-    #                     "type": "keyword"
-    #                 }
-    #             }
-    #         }
-    #     },
-    #     "genres": {
-    #         "mappings": {
-    #             "dynamic": "strict",
-    #             "properties": {
-    #                 "description": {
-    #                     "type": "text"
-    #                 },
-    #                 "id": {
-    #                     "type": "keyword"
-    #                 },
-    #                 "name": {
-    #                     "type": "text",
-    #                     "fields": {
-    #                         "raw": {
-    #                             "type": "keyword"
-    #                         }
-    #                     }
-    #                 }
-    #             }
-    #         }
-    #     }
-    # }
+    es_host: str = Field(default=os.getenv('TEST_ELASTIC_HOST', 'http://127.0.0.1:9200'))
+    es_index: dict = {
+        'movies':
+            [
+                'redis_search', 'limit', 'validation', 'phrase',
+                'film', 'all_films', 'films_validation'
+            ],
+        'genres': ['limit_genre', 'genre_validation', 'redis_genre', 'genre'],
+        'persons': ['limit_person', 'person', 'person_validation', 'person_films']
+    }
+    redis_host: str = Field(default=os.getenv('TEST_REDIS_HOST', 'localhost'))
+    redis_port: int = Field(default=os.getenv('TEST_REDIS_PORT', 6379))
+    service_url: str = Field(default=os.getenv('TEST_SERVICE_URL', 'http://127.0.0.1:8000'))
 
 
 test_settings = TestSettings()
