@@ -54,3 +54,26 @@ async def test_get_all_films(
     # Проверяем ответ
     assert response.status == expected_answer['status']
     assert len(response.body) == expected_answer['length']
+
+
+@pytest.mark.parametrize(
+    'query_data, expected_answer',
+    PARAMETERS['films_validation']
+)
+@pytest.mark.fixt_data('films_validation')
+@pytest.mark.asyncio
+async def test_validation_films(
+        es_write_data,
+        make_get_request,
+        es_data,
+        query_data: dict,
+        expected_answer: dict
+) -> None:
+    """
+    Тест на валидность всех данных
+    """
+    await es_write_data(es_data, 'movies')
+    response = await make_get_request('films', query_data)
+    # Проверяем ответ
+    assert response.status == expected_answer['status']
+    assert len(response.body) == expected_answer['length']
