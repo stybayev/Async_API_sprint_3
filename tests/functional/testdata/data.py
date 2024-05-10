@@ -23,6 +23,8 @@ TEST_DATA_GENRE = {
     'description': 'description'
 }
 
+TEST_DATA_PERSON = {'id': 'ef86b8ff-3c82-4d31-ad8e-72b69f4e3f95', 'full_name': 'Ann'}
+
 PARAMETERS = {
     'phrase': [
         (
@@ -51,8 +53,14 @@ PARAMETERS = {
     'validation': [
         (
             {'films/search': 'The Star'},
-            {'status': 200, 'length': 10}
+            {'status': 200, 'length': 3}
         ),
+    ],
+    'redis_search': [
+        (
+            {'films/search': 'Star'},
+            {'status': 200, 'length': 6}
+        )
     ],
     'film_search': [
         (
@@ -82,6 +90,12 @@ PARAMETERS = {
             {'status': 200, 'length': 10}
         )
     ],
+    'limit_persons': [
+        (
+            {'persons': ''},
+            {'status': 200, 'length': 10}
+        )
+    ],
 
     'all_films': [
         (
@@ -102,12 +116,46 @@ PARAMETERS = {
                 'name': 'Action',
                 'id': 'adb5ffa8-7dbc-4088-8e5f-44311680a75c'
             }
+        ),
+        (
+            {
+                'id': 'adb5ffa8-7dbc-4088-8e5f-44311680a76c',
+                'genres': ''
+            },
+            {
+                'status': 404,
+                'answer': 'genre not found'
+            }
+        )
+    ],
+    'search_person': [
+        (
+            {
+                'id': TEST_DATA_PERSON['id'],
+                'persons': '',
+            },
+            {
+                'status': 200,
+                'answer': TEST_DATA_PERSON
+            }
         )
     ],
     'genre_validation': [
         (
             {'genres': ''},
+            {'status': 200, 'length': 3}
+        )
+    ],
+    'person_validation': [
+        (
+            {'persons': ''},
             {'status': 200, 'length': 10}
+        )
+    ],
+    'person_films': [
+        (
+            {'id': f'{TEST_DATA_PERSON["id"]}/film?page_size=100&page_number=1'},
+            {'status': 200, 'length': 15}
         )
     ]
 }

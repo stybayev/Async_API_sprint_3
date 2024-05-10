@@ -1,3 +1,4 @@
+import logging
 from fastapi import Depends
 from uuid import UUID
 from app.models.genre import Genre
@@ -7,6 +8,7 @@ from redis.asyncio import Redis
 from elasticsearch import AsyncElasticsearch
 from elasticsearch.exceptions import NotFoundError
 from app.services.base import BaseService
+from pydantic import ValidationError
 
 
 class GenreService(BaseService):
@@ -63,7 +65,24 @@ class GenreService(BaseService):
             )
         except NotFoundError:
             return []
-        return [self.model(**item['_source']) for item in response['hits']['hits']]
+
+        # return [self.model(**item['_source']) for item in response['hits']['hits']]
+
+        genres = []
+        for hit in response['hits']['hits']:
+            genres_data = {
+                "id": hit["_id"],
+                "name": hit["_source"]["name"],
+                "description": hit["_source"].get("description")
+            }
+            try:
+                genre = Genre(**genres_data)
+                genres.append(genre)
+            except ValidationError as e:
+                logging.error(f"Error validating genre data: {e}")
+                continue
+
+        return genres
 
 
 # Dependency Injection function to get the GenreService instance
