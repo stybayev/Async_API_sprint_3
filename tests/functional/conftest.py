@@ -85,6 +85,16 @@ def es_data(request) -> list[dict]:
             copy_film_data['title'] = 'The Star'
             es_data.append(deepcopy(copy_film_data))
 
+    if type_test == 'redis_films':
+        for _ in range(6):
+            copy_film_data['id'] = str(uuid.uuid4())
+            copy_film_data['title'] = 'The Star'
+            es_data.append(deepcopy(copy_film_data))
+
+    if type_test == 'redis_films_id':
+        copy_films_data = deepcopy(TEST_DATA)
+        es_data.append(deepcopy(copy_films_data))
+
     if type_test == 'redis_genre':
         copy_genre_data = deepcopy(TEST_DATA_GENRE)
         es_data.append(deepcopy(copy_genre_data))
@@ -207,7 +217,7 @@ def es_write_data(es_client: AsyncElasticsearch, redis_client: Redis, request):
 @pytest_asyncio.fixture(name='make_get_request')
 def make_get_request(session_client):
     async def inner(type_api, query_data) -> Response:
-        url = test_settings.service_url + '/api/v1/' + type_api + '/'
+        url = f'{test_settings.service_url}/api/v1/{type_api}/'
         if 'id' in query_data:
             url += query_data['id']
         get_params = {'query': query_data.get(type_api)}
