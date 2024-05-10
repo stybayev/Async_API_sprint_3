@@ -89,6 +89,10 @@ def es_data(request) -> list[dict]:
         copy_genre_data = deepcopy(TEST_DATA_GENRE)
         es_data.append(deepcopy(copy_genre_data))
 
+    if type_test == 'redis_person':
+        copy_person_data = deepcopy(TEST_DATA_PERSON)
+        es_data.append(deepcopy(copy_person_data))
+
     if type_test == 'phrase':
         for _ in range(3):
             copy_film_data['id'] = str(uuid.uuid4())
