@@ -35,17 +35,13 @@ async def session_client() -> aiohttp.ClientSession:
 @pytest_asyncio.fixture()
 def es_data(request) -> list[dict]:
     es_data = []
-
-    index = test_settings.es_index
     type_test = request.node.get_closest_marker("fixt_data").args[0]
-    # FIX: эти условия не очень хорошо, надо индекс параметром будет
-    # передавать и убрать из settings es_index раз уж у нас 2 индекса
-    # TODO Согласен индекс нужно передать как параметр, а в settings можно добавить все индексы или убрать
-    if (type_test == 'genre' or type_test == 'limit_genre' or
-            type_test == 'genre_validation' or type_test == 'redis_genre'):
-        index = 'genres'
-    if type_test == 'person' or type_test == 'limit_person' or type_test == 'person_validation':
-        index = 'persons'
+    index = 'movies'
+    # выберем по какому индексу будет проходить тест
+    for setting_index in test_settings.es_index:
+        if type_test in test_settings.es_index[setting_index]:
+            index = setting_index
+
     copy_film_data = deepcopy(TEST_DATA)
     copy_genre_data = deepcopy(TEST_DATA_GENRE)
     copy_person_data = deepcopy(TEST_DATA_PERSON)
@@ -68,6 +64,20 @@ def es_data(request) -> list[dict]:
         copy_film_data['id'] = '1123456'
         copy_film_data['imdb_rating'] = 5
         es_data.append(deepcopy(copy_film_data))
+
+    if type_test == 'films_validation':
+        for _ in range(3):
+            copy_film_data['id'] = str(uuid.uuid4())
+            es_data.append(deepcopy(copy_film_data))
+        # добавляем фильм с невалидным id
+        copy_film_data['id'] = '123456'
+        es_data.append(deepcopy(copy_film_data))
+        # добавляем фильм с невалидным рейтингом
+        copy_film_data['id'] = str(uuid.uuid4())
+        copy_film_data['imdb_rating'] = 15
+        es_data.append(deepcopy(copy_film_data))
+        copy_film_data['id'] = str(uuid.uuid4())
+        copy_film_data['imdb_rating'] = -2
 
     if type_test == 'redis_search':
         for _ in range(6):

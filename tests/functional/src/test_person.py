@@ -3,6 +3,7 @@ from tests.functional.testdata.data import PARAMETERS
 from tests.functional.utils.films_utils import get_es_data
 from tests.functional.testdata.data import TEST_DATA_PERSON
 
+
 @pytest.mark.parametrize(
     'query_data, expected_answer',
     PARAMETERS['limit_persons']

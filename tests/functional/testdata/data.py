@@ -156,6 +156,12 @@ PARAMETERS = {
             {'status': 200, 'length': 3}
         )
     ],
+    'films_validation': [
+        (
+            {'films': ''},
+            {'status': 200, 'length': 3}
+        )
+    ],
     'person_validation': [
         (
             {'persons': ''},
