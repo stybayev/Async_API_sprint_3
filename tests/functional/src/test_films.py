@@ -104,7 +104,6 @@ async def test_films_with_redis_cache(
     await es_write_data(es_data, 'movies')
     # Первый запрос, который запишет данные в кэш
     response = await make_get_request('films', query_data)
-    assert True
     assert response.status == expected_answer['status']
     assert len(response.body) == expected_answer['length']
 
@@ -134,3 +133,41 @@ async def test_films_with_redis_cache(
     # Проверка, что данные из кэша совпадают с первоначальными данными
     cached_films = orjson.loads(cached_data)
     assert len(cached_films) == expected_answer['length'], 'Количество фильмов из кэша должно совпадать'
+
+
+@pytest.mark.parametrize(
+    'query_data, expected_answer',
+    PARAMETERS['redis_films_id']
+)
+@pytest.mark.fixt_data('redis_films_id')
+@pytest.mark.asyncio
+async def test_film_id_with_redis_cache(
+        es_write_data,
+        make_get_request,
+        redis_client,
+        es_data: list[dict],
+        query_data,
+        expected_answer
+) -> None:
+    """
+    Тест поиск с учётом кеша в Redis на метод /film{id}
+    """
+    await es_write_data(es_data, 'movies')
+    # Первый запрос, который запишет данные в кэш
+    response = await make_get_request('films', query_data)
+    assert response.status == expected_answer['status']
+    assert response.body['title'] == expected_answer['title']
+    assert response.body['uuid'] == expected_answer['id']
+
+    # Даем время для записи в кэш
+    await asyncio.sleep(1)
+
+    # Получаем данные из кэша по созданному ключу
+    cached_data = await redis_client.get(f'movies:{query_data["id"]}')
+    assert cached_data is not None, 'Данные должны быть в кэше'
+
+    # Повторный запрос, который должен извлечь данные из кэша
+    response_cached = await make_get_request('films', query_data)
+    assert response_cached.status == response.status
+    assert response_cached.body == response.body
+

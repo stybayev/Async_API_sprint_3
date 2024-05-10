@@ -68,6 +68,17 @@ PARAMETERS = {
             {'status': 200, 'length': 6}
         )
     ],
+
+    'redis_films_id': [
+        (
+            {'id': 'ffc3df9f-a17e-4bae-b0b6-c9c4da290fdd'},
+            {
+                'status': 200,
+                'title': 'The Star',
+                'id': 'ffc3df9f-a17e-4bae-b0b6-c9c4da290fdd'
+            }
+        )
+    ],
     'redis_genre': [
         (
             {'genres': '', 'id': 'adb5ffa8-7dbc-4088-8e5f-44311680a75c'},
