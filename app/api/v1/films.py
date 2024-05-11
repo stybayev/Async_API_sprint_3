@@ -1,12 +1,12 @@
 from http import HTTPStatus
 from fastapi import APIRouter, Depends, HTTPException, Query, Path
 from app.services.film import FilmService, get_film_service
-
-router = APIRouter()
-
+from app.utils.dc_objects import PaginatedParams
 from pydantic import BaseModel
 from typing import List
 from uuid import UUID
+
+router = APIRouter()
 
 
 class BaseFilmModelResponse(BaseModel):
@@ -77,7 +77,8 @@ class FilmListResponse(BaseFilmModelResponse):
 @router.get('/{film_id}', response_model=FilmResponse)
 async def film_details(
         film_id: UUID = Path(..., description='film id'),
-        film_service: FilmService = Depends(get_film_service)) -> FilmResponse:
+        film_service: FilmService = Depends(get_film_service)
+) -> FilmResponse:
     """
     Получить информацию о фильме
 
@@ -89,11 +90,21 @@ async def film_details(
                             detail='film not found')
 
     # Преобразование данных об актёрах, сценаристах, режиссерах
-    actors_response = [ActorResponse(uuid=actor.id, full_name=actor.name) for actor in film.actors]
-    writers_response = [WriterResponse(uuid=writer.id, full_name=writer.name) for writer in film.writers]
-    directors_response = [DirectorResponse(
-        uuid=director.uuid,
-        full_name=director.full_name) for director in film.director]
+    actors_response = [
+        ActorResponse(uuid=actor.id, full_name=actor.name) for actor in film.actors
+    ]
+    writers_response = [
+        WriterResponse(uuid=writer.id, full_name=writer.name) for writer in film.writers
+    ]
+    directors_response = [
+        DirectorResponse(
+            uuid=director.uuid,
+            full_name=director.full_name
+        ) for director in film.director
+    ]
+    genre_response = [
+        GenreResponse(name=genre.name, uuid=genre.uuid) for genre in film.genre
+    ]
 
     # Создание и возврат объекта ответа, используя преобразованные данные
     return FilmResponse(
@@ -101,7 +112,7 @@ async def film_details(
         title=film.title,
         description=film.description,
         imdb_rating=film.imdb_rating,
-        genre=film.genre,
+        genre=genre_response,
         directors=directors_response,
         actors_names=film.actors_names,
         writers_names=film.writers_names,
@@ -117,8 +128,8 @@ async def film_details(
 async def list_films(
         sort: str | None = '-imdb_rating',
         genre: str | None = Query(None, description='Filter by genre'),
-        page_size: int = Query(10, ge=1, description='Pagination page size'),
-        page_number: int = Query(1, ge=1, description='Pagination page number'),
+        page_size: int = PaginatedParams.page_size,
+        page_number: int = PaginatedParams.page_number,
         film_service: FilmService = Depends(get_film_service)) -> List[FilmListResponse]:
     """
     Получить список фильмов"
@@ -139,8 +150,8 @@ async def list_films(
 @router.get('/search/', response_model=List[FilmListResponse])
 async def search_films(
         query: str = Query(..., description='Search query'),
-        page_size: int = Query(10, ge=1, description='Pagination page size'),
-        page_number: int = Query(1, ge=1, description='Pagination page number'),
+        page_size: int = PaginatedParams.page_size,
+        page_number: int = PaginatedParams.page_number,
         film_service: FilmService =
         Depends(get_film_service)) -> List[FilmListResponse]:
     """
