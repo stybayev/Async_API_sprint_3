@@ -13,13 +13,14 @@ class TestSettings(BaseSettings):
         'persons': ['limit_person', 'person', 'person_validation', 'person_films', 'redis_person']
     }
 
-    es_host: str = Field(default='http://127.0.0.1:9200', alias='TEST_ELASTIC_HOST')
-    redis_host: str = Field(default='localhost', alias='TEST_REDIS_HOST')
-    redis_port: int = Field(default=6379, env='TEST_REDIS_PORT')
-    service_url: str = Field(default='http://127.0.0.1:8000', alias='TEST_SERVICE_URL')
+    es_host: str = 'http://127.0.0.1:9200'
+    redis_host: str = 'localhost'
+    redis_port: int = 6379
+    service_url: str = 'http://127.0.0.1:8000'
 
     class Config:
         env_file = '.env.test'
+        env_prefix = 'TEST_'
 
 
 test_settings = TestSettings()
