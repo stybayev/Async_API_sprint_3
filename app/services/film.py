@@ -37,7 +37,6 @@ class FilmService(BaseService):
                 return None
             # Сохраняем фильм в кеш
             await self._put_entity_to_cache(film)
-
         return film
 
     async def _get_film_from_elastic(self, film_id: UUID) -> Film | None:
@@ -106,7 +105,7 @@ class FilmService(BaseService):
                     body={
                         "query": {
                             "match": {
-                                "name.raw": genre_name
+                                "name": genre_name
                             }
                         }
                     }

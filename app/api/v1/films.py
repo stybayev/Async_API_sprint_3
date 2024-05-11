@@ -90,11 +90,21 @@ async def film_details(
                             detail='film not found')
 
     # Преобразование данных об актёрах, сценаристах, режиссерах
-    actors_response = [ActorResponse(uuid=actor.id, full_name=actor.name) for actor in film.actors]
-    writers_response = [WriterResponse(uuid=writer.id, full_name=writer.name) for writer in film.writers]
-    directors_response = [DirectorResponse(
-        uuid=director.uuid,
-        full_name=director.full_name) for director in film.director]
+    actors_response = [
+        ActorResponse(uuid=actor.id, full_name=actor.name) for actor in film.actors
+    ]
+    writers_response = [
+        WriterResponse(uuid=writer.id, full_name=writer.name) for writer in film.writers
+    ]
+    directors_response = [
+        DirectorResponse(
+            uuid=director.uuid,
+            full_name=director.full_name
+        ) for director in film.director
+    ]
+    genre_response = [
+        GenreResponse(name=genre.name, uuid=genre.uuid) for genre in film.genre
+    ]
 
     # Создание и возврат объекта ответа, используя преобразованные данные
     return FilmResponse(
@@ -102,7 +112,7 @@ async def film_details(
         title=film.title,
         description=film.description,
         imdb_rating=film.imdb_rating,
-        genre=film.genre,
+        genre=genre_response,
         directors=directors_response,
         actors_names=film.actors_names,
         writers_names=film.writers_names,
