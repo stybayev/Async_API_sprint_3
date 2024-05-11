@@ -1,12 +1,12 @@
 from http import HTTPStatus
 from fastapi import APIRouter, Depends, HTTPException, Query, Path
 from app.services.film import FilmService, get_film_service
-
-router = APIRouter()
-
+from app.utils.dc_objects import PaginatedParams
 from pydantic import BaseModel
 from typing import List
 from uuid import UUID
+
+router = APIRouter()
 
 
 class BaseFilmModelResponse(BaseModel):
@@ -77,7 +77,8 @@ class FilmListResponse(BaseFilmModelResponse):
 @router.get('/{film_id}', response_model=FilmResponse)
 async def film_details(
         film_id: UUID = Path(..., description='film id'),
-        film_service: FilmService = Depends(get_film_service)) -> FilmResponse:
+        film_service: FilmService = Depends(get_film_service)
+) -> FilmResponse:
     """
     Получить информацию о фильме
 
@@ -117,8 +118,8 @@ async def film_details(
 async def list_films(
         sort: str | None = '-imdb_rating',
         genre: str | None = Query(None, description='Filter by genre'),
-        page_size: int = Query(10, ge=1, description='Pagination page size'),
-        page_number: int = Query(1, ge=1, description='Pagination page number'),
+        page_size: int = PaginatedParams.page_size,
+        page_number: int = PaginatedParams.page_number,
         film_service: FilmService = Depends(get_film_service)) -> List[FilmListResponse]:
     """
     Получить список фильмов"
@@ -139,8 +140,8 @@ async def list_films(
 @router.get('/search/', response_model=List[FilmListResponse])
 async def search_films(
         query: str = Query(..., description='Search query'),
-        page_size: int = Query(10, ge=1, description='Pagination page size'),
-        page_number: int = Query(1, ge=1, description='Pagination page number'),
+        page_size: int = PaginatedParams.page_size,
+        page_number: int = PaginatedParams.page_number,
         film_service: FilmService =
         Depends(get_film_service)) -> List[FilmListResponse]:
     """

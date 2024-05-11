@@ -1,8 +1,6 @@
 import logging
 from functools import lru_cache
-from hashlib import md5
 
-import orjson
 from elasticsearch import AsyncElasticsearch, NotFoundError
 from fastapi import Depends
 from pydantic import ValidationError
@@ -44,14 +42,12 @@ class FilmService(BaseService):
 
     async def _get_film_from_elastic(self, film_id: UUID) -> Film | None:
         try:
-            doc = await self.elastic.get(index="movies", id=film_id)
+            doc = await self.elastic.get(index="movies", id=str(film_id))
         except NotFoundError:
             return None
 
         doc_source = doc["_source"]
 
-        # Получаем данные о режиссерах, используя выделенную функцию
-        # doc_source['director'] = [doc_source.get('director', '')] if doc_source.get('director', '') else []
         director_names = doc_source.get('director', [])
 
         if director_names:
@@ -81,7 +77,7 @@ class FilmService(BaseService):
     async def _film_from_cache(self, film_id: UUID) -> Film | None:
         # Пытаемся получить данные о фильме из кеша, используя команду get
         # https://redis.io/commands/get/
-        data = await self.redis.get(film_id)
+        data = await self.redis.get(str(film_id))
         if not data:
             return None
 
