@@ -1,3 +1,5 @@
+from http import HTTPStatus
+
 TEST_DATA = {
     'id': 'ffc3df9f-a17e-4bae-b0b6-c9c4da290fdd',
     'imdb_rating': 8.5,
@@ -29,43 +31,43 @@ PARAMETERS = {
     'phrase': [
         (
             {'films/search': 'Star'},
-            {'status': 200, 'length': 6}
+            {'status': HTTPStatus.OK, 'length': 6}
         ),
         (
             {'films/search': 'Roger'},
-            {'status': 200, 'length': 4}
+            {'status': HTTPStatus.OK, 'length': 4}
         ),
         (
             {'films/search': 'Philips'},
-            {'status': 200, 'length': 1}
+            {'status': HTTPStatus.OK, 'length': 1}
         )
     ],
     'limit': [
         (
             {'films/search': 'The Star'},
-            {'status': 200, 'length': 10}
+            {'status': HTTPStatus.OK, 'length': 10}
         ),
         (
             {'films/search': 'Marched Potato'},
-            {'status': 200, 'length': 0}
+            {'status': HTTPStatus.OK, 'length': 0}
         )
     ],
     'validation': [
         (
             {'films/search': 'The Star'},
-            {'status': 200, 'length': 3}
+            {'status': HTTPStatus.OK, 'length': 3}
         ),
     ],
     'redis_search': [
         (
             {'films/search': 'Star'},
-            {'status': 200, 'length': 6}
+            {'status': HTTPStatus.OK, 'length': 6}
         )
     ],
     'redis_films': [
         (
             {'films/': 'Star'},
-            {'status': 200, 'length': 6}
+            {'status': HTTPStatus.OK, 'length': 6}
         )
     ],
 
@@ -73,7 +75,7 @@ PARAMETERS = {
         (
             {'id': 'ffc3df9f-a17e-4bae-b0b6-c9c4da290fdd'},
             {
-                'status': 200,
+                'status': HTTPStatus.OK,
                 'title': 'The Star',
                 'id': 'ffc3df9f-a17e-4bae-b0b6-c9c4da290fdd'
             }
@@ -83,7 +85,7 @@ PARAMETERS = {
         (
             {'genres': '', 'id': 'adb5ffa8-7dbc-4088-8e5f-44311680a75c'},
             {
-                'status': 200,
+                'status': HTTPStatus.OK,
                 'name': 'Action',
                 'id': 'adb5ffa8-7dbc-4088-8e5f-44311680a75c'
             }
@@ -93,7 +95,7 @@ PARAMETERS = {
         (
             {'persons': '', 'id': TEST_DATA_PERSON['id']},
             {
-                'status': 200,
+                'status': HTTPStatus.OK,
                 'full_name': 'Ann',
                 'id': TEST_DATA_PERSON['id']
             }
@@ -106,7 +108,7 @@ PARAMETERS = {
                 'films': ''
             },
             {
-                'status': 200,
+                'status': HTTPStatus.OK,
                 'id': 'ffc3df9f-a17e-4bae-b0b6-c9c4da290fdd'
             }
         ),
@@ -116,7 +118,7 @@ PARAMETERS = {
                 'films': ''
             },
             {
-                'status': 404,
+                'status': HTTPStatus.NOT_FOUND,
                 'answer': 'film not found'
             }
         )
@@ -124,20 +126,20 @@ PARAMETERS = {
     'limit_genres': [
         (
             {'genres': ''},
-            {'status': 200, 'length': 10}
+            {'status': HTTPStatus.OK, 'length': 10}
         )
     ],
     'limit_persons': [
         (
             {'persons': ''},
-            {'status': 200, 'length': 10}
+            {'status': HTTPStatus.OK, 'length': 10}
         )
     ],
 
     'all_films': [
         (
             {'films': ''},
-            {'status': 200, 'length': 10}
+            {'status': HTTPStatus.OK, 'length': 10}
         )
     ],
 
@@ -148,7 +150,7 @@ PARAMETERS = {
                 'genres': '',
             },
             {
-                'status': 200,
+                'status': HTTPStatus.OK,
                 'length': 1,
                 'name': 'Action',
                 'id': 'adb5ffa8-7dbc-4088-8e5f-44311680a75c'
@@ -160,7 +162,7 @@ PARAMETERS = {
                 'genres': ''
             },
             {
-                'status': 404,
+                'status': HTTPStatus.NOT_FOUND,
                 'answer': 'genre not found'
             }
         )
@@ -172,7 +174,7 @@ PARAMETERS = {
                 'persons': '',
             },
             {
-                'status': 200,
+                'status': HTTPStatus.OK,
                 'answer': TEST_DATA_PERSON
             }
         )
@@ -180,25 +182,25 @@ PARAMETERS = {
     'genre_validation': [
         (
             {'genres': ''},
-            {'status': 200, 'length': 3}
+            {'status': HTTPStatus.OK, 'length': 3}
         )
     ],
     'films_validation': [
         (
             {'films': ''},
-            {'status': 200, 'length': 3}
+            {'status': HTTPStatus.OK, 'length': 3}
         )
     ],
     'person_validation': [
         (
             {'persons': ''},
-            {'status': 200, 'length': 4}
+            {'status': HTTPStatus.OK, 'length': 4}
         )
     ],
     'person_films': [
         (
             {'id': f'{TEST_DATA_PERSON["id"]}/film?page_size=100&page_number=1'},
-            {'status': 200, 'length': 15}
+            {'status': HTTPStatus.OK, 'length': 15}
         )
     ]
 }

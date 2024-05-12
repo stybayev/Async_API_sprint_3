@@ -7,6 +7,6 @@ python3 tests/functional/utils/wait_for_es.py
 python3 tests/functional/utils/wait_for_redis.py
 
 # Запустить тесты
-pytest tests/functional/src -p no:warnings
+pytest tests/functional -p no:warnings
 
 

@@ -18,4 +18,4 @@ RUN chmod +x /usr/local/bin/entrypoint.sh
 
 # Установка entrypoint.sh как точки входа
 ENTRYPOINT ["entrypoint.sh"]
-CMD ["pytest", "tests/functional/src"]
+CMD ["pytest", "tests/functional"]
