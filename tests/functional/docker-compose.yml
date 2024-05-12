@@ -67,3 +67,4 @@ services:
       - ../..:/tests
     networks:
       - test_network
+

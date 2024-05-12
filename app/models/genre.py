@@ -1,7 +1,6 @@
 import orjson
 
-from pydantic import BaseModel
-from typing import Callable, Optional, Any
+from typing import Optional
 from app.models.base_model import BaseMixin, orjson_dumps
 from uuid import UUID
 

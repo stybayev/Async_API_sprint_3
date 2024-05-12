@@ -66,8 +66,6 @@ class GenreService(BaseService):
         except NotFoundError:
             return []
 
-        # return [self.model(**item['_source']) for item in response['hits']['hits']]
-
         genres = []
         for hit in response['hits']['hits']:
             genres_data = {
