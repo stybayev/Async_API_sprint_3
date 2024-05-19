@@ -2,7 +2,7 @@
 
 1) Клонируем репозиторий:
    ```
-   git clone git@github.com:stybayev/Async_API_sprint_2.git
+   git clone git@github.com:stybayev/Async_API_sprint_3.git
    ```
 2) Заходим в корневую директрию проекта `/Async_API_sprint_2`:
    ```
