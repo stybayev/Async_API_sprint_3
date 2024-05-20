@@ -1,14 +1,22 @@
 version: '3.7'
 
+x-app: &app
+  env_file:
+    - .env
+  restart: always
+
+
 volumes:
   esdata:
   db_data:
   redis_data:
+  minio_storage:
 
 services:
   app:
     container_name: app
     build: .
+    <<: *app
     volumes:
       - .:/app
     restart: always
@@ -20,14 +28,10 @@ services:
       - db
       - elasticsearch
       - redis
-    env_file:
-      - .env
 
   etl:
     image: vadimiki/etl:2.0
-    restart: always
-    env_file:
-      - .env
+    <<: *app
     depends_on:
       - db
       - elasticsearch
@@ -50,7 +54,7 @@ services:
     image: postgis/postgis:14-master
     container_name: db
     shm_size: 1g
-    restart: always
+    <<: *app
     expose:
       - 5432
     ports:
@@ -80,3 +84,16 @@ services:
       - app
     ports:
       - "80:80"
+
+  minio:
+    image: minio/minio
+    <<: *app
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+    volumes:
+      - minio_storage:/data
+    command: server --console-address ":9001" /data
