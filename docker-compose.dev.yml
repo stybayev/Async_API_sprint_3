@@ -4,8 +4,25 @@ volumes:
   esdata:
   db_data:
   redis_data:
+  static:
+  media:
 
 services:
+
+  django_admin:
+    build: django_admin
+    image: app-django-admin:dev
+    volumes:
+      - media:/opt/app/media
+      - static:/opt/app/static
+    depends_on:
+      - db
+    env_file:
+      - .env
+    expose:
+      - ${DJANGO_PORT}
+    restart: unless-stopped
+
   app:
     container_name: app
     build: .
