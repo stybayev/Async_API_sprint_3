@@ -53,7 +53,7 @@ class Filmwork(UUIDMixin, TimeStampledMixin):
     )
     genres = models.ManyToManyField(Genre, through="GenreFilmwork")
     persons = models.ManyToManyField("Person", through="PersonFilmwork")
-    file = FileField(storage=CustomStorage(), null=True)
+    # file = FileField(storage=CustomStorage(), null=True)
 
     def __str__(self):
         return self.title
@@ -85,14 +85,14 @@ class GenreFilmwork(UUIDMixin):
 
 
 class Person(UUIDMixin, TimeStampledMixin):
-    class Gender(models.TextChoices):
-        MALE = "male", _("male")
-        FEMALE = "female", _("female")
+    # class Gender(models.TextChoices):
+    #     MALE = "male", _("male")
+    #     FEMALE = "female", _("female")
 
     full_name = models.CharField(
         _("full name"), max_length=255, blank=False, null=False
     )
-    gender = models.TextField(_("gender"), choices=Gender.choices, null=True)
+    # gender = models.TextField(_("gender"), choices=Gender.choices, null=True)
 
     def __str__(self):
         return self.full_name

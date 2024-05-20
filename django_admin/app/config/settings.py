@@ -45,8 +45,8 @@ include("components/internationalization.py")
 ROOT_URLCONF = "config.urls"
 WSGI_APPLICATION = "config.wsgi.application"
 
-STATIC_URL = "/static/"
-STATIC_ROOT = "/static/"
+STATIC_URL = "static/"
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
 if DEBUG:
     STATICFILES_DIRS = [os.path.join(BASE_DIR, "staticfiles")]
 
