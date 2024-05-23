@@ -29,6 +29,18 @@ services:
       - elasticsearch
       - redis
 
+  file_api:
+    container_name: file_api
+    build: ./file_api
+    <<: *app
+    volumes:
+      - .:/file_api
+    ports:
+      - "8001:8001"
+    depends_on:
+      - minio
+      - db
+
   etl:
     image: vadimiki/etl:2.0
     <<: *app
