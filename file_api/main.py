@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 from file_api.api.v1 import films
 from file_api.core.config import settings
-from file_api.db.minio import get_minio, client
+from file_api.db.minio import get_minio
 
 
 @asynccontextmanager
