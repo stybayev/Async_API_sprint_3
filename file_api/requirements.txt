@@ -27,3 +27,4 @@ uvloop==0.17.0
 yarl==1.9.4
 python-dotenv==1.0.1
 python-multipart==0.0.9
+miniopy-async==1.19
