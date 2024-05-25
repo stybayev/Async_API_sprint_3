@@ -40,12 +40,3 @@ app.include_router(genres.router, prefix="/api/v1/genres", tags=["genres"])
 app.include_router(persons.router, prefix="/api/v1/persons", tags=["persons"])
 
 setup_dependencies(app)
-
-if __name__ == "__main__":
-    uvicorn.run(
-        "main:app",
-        host="0.0.0.0",
-        port=8000,
-        log_config=LOGGING,
-        log_level=logging.DEBUG,
-    )
