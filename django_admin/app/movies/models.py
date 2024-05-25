@@ -53,7 +53,7 @@ class Filmwork(UUIDMixin, TimeStampledMixin):
     )
     genres = models.ManyToManyField(Genre, through="GenreFilmwork")
     persons = models.ManyToManyField("Person", through="PersonFilmwork")
-    # file = FileField(storage=CustomStorage(), null=True)
+    file = FileField(storage=CustomStorage(), null=True)
 
     def __str__(self):
         return self.title
