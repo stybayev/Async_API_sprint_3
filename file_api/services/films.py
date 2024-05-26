@@ -1,7 +1,6 @@
 from functools import lru_cache
 from fastapi import UploadFile, Depends
 from miniopy_async import Minio
-from miniopy_async.helpers import ObjectWriteResult
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from file_api.db.db import get_db_session
@@ -16,17 +15,21 @@ class FileService:
         self.db_session = db_session
 
     async def save(self, file: UploadFile, bucket: str, path: str) -> FileDbModel:
-        # Читаем весь файл для получения его размера
+        # Получаем размер файла для поля size
         file_content = await file.read()
         file_size = len(file_content)
-        # Возвращаем указатель в начало файла
         await file.seek(0)
-        # Генерируем короткое имя файла
+
+        # Определяем значение поля short_name
         short_name = shortuuid()
+
         # Загружаем файл в Minio
         await self.client.put_object(
-            bucket_name=bucket, object_name=path, data=file.file, length=file_size, part_size=10 * 1024 * 1024,
+            bucket_name=bucket, object_name=path,
+            data=file.file, length=file_size,
+            part_size=10 * 1024 * 1024,
         )
+
         # Сохраняем информацию о файле в базу данных
         new_file = FileDbModel(
             path_in_storage=path,
@@ -37,7 +40,7 @@ class FileService:
         )
         self.db_session.add(new_file)
         await self.db_session.commit()
-        await self.db_session.refresh(new_file)  # Обновляем объект, чтобы получить id и created_at
+        await self.db_session.refresh(new_file)
         return new_file
 
 

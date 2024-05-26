@@ -15,10 +15,6 @@ class DataBaseSettings(BaseSettings):
         env_file = '.env'
         env_prefix = 'POSTGRES_'
 
-    # @property
-    # def url(self):
-    #     return f'postgresql+psycopg://{self.user}:{self.password}@{self.host}:{self.port}/{self.db}'
-
     @property
     def url(self):
         return f'postgresql+asyncpg://{self.user}:{self.password}@{self.host}:{self.port}/{self.db}'
