@@ -1,7 +1,7 @@
 from fastapi import APIRouter, UploadFile, HTTPException, Depends
 
 from file_api.schemas.files import FileResponse
-from file_api.services.films import FileService, get_film_service
+from file_api.services.files import FileService, get_film_service
 
 router = APIRouter()
 

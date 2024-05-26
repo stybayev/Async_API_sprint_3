@@ -1,7 +1,9 @@
+from datetime import timedelta
 from functools import lru_cache
 from fastapi import UploadFile, Depends
 from miniopy_async import Minio
 from sqlalchemy.ext.asyncio import AsyncSession
+from starlette.responses import StreamingResponse
 
 from file_api.db.db import get_db_session
 from file_api.db.minio import get_minio
@@ -42,6 +44,22 @@ class FileService:
         await self.db_session.commit()
         await self.db_session.refresh(new_file)
         return new_file
+
+    async def get_file(self, bucket: str, path: str) -> StreamingResponse:
+        result = await self.client.get_object(bucket, path)
+
+        async def s3_stream():
+            async for chunk in result.content.iter_chunked(32 * 1024):
+                yield chunk
+
+        return StreamingResponse(
+            content=s3_stream(),
+            media_type='video/mp4',
+            headers={'Content-Disposition': 'filename="movie.mp4"'}
+        )
+
+    async def get_presigned_url(self, bucket: str, path: str) -> str:
+        return await self.client.get_presigned_url('GET', bucket, path, expires=timedelta(days=1), )
 
 
 @lru_cache()
