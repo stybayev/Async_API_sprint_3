@@ -24,7 +24,7 @@ class Settings(BaseSettings):
     # App
     project_name: str = Field(default='File API', env='File API')
     uvicorn_host: str = Field(default='0.0.0.0', env='FILE_API_UVICORN_HOST')
-    uvicorn_port: int = Field(default=8001, env='FILE_API_UVICORN_PORT')
+    uvicorn_port: int = Field(default=8081, env='FILE_API_UVICORN_PORT')
 
     # Redis
     redis_host: str = Field(default='0.0.0.0', env='REDIS_HOST')
