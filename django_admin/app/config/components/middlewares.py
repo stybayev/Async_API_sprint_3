@@ -10,7 +10,7 @@ MIDDLEWARE = [
 ]
 
 
-REST_FRAMEWORK = {
-    "DEFAULT_PAGINATION_CLASS": "movies.api.paginators.TotalPageCountPaginator",
-    "PAGE_SIZE": 50,
-}
+# REST_FRAMEWORK = {
+#     "DEFAULT_PAGINATION_CLASS": "movies.api.paginators.TotalPageCountPaginator",
+#     "PAGE_SIZE": 50,
+# }
