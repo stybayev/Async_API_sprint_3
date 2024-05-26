@@ -33,7 +33,7 @@ services:
 
   app:
     container_name: app
-    build: .
+    build: ./app
     <<: *app
     volumes:
       - .:/app
