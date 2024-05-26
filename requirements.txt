@@ -26,3 +26,9 @@ uvicorn==0.24.0
 uvloop==0.17.0
 yarl==1.9.4
 python-dotenv==1.0.1
+Django==4.0.4
+psycopg2-binary==2.9.9
+uWSGI==2.0.23
+django-split-settings==1.2.0
+django-debug-toolbar==4.2.0
+django-cors-headers==4.3.1
