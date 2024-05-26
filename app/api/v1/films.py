@@ -22,7 +22,6 @@ async def get_film(
             status_code=HTTPStatus.NOT_FOUND,
             detail="film not found"
         )
-    print(film)
     return film
 
 

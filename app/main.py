@@ -9,7 +9,6 @@ from contextlib import asynccontextmanager
 
 from app.api.v1 import films, genres, persons
 from app.core.config import settings
-from app.core.logger import LOGGING
 from app.db import elastic, redis
 from app.dependencies.main import setup_dependencies
 
