@@ -8,11 +8,15 @@ x-app: &app
 
 volumes:
   esdata:
-  db_data:
+  dbdata:
   redis_data:
+  static:
+  media:
   minio_storage:
 
+
 services:
+
   app:
     container_name: app
     build: ./app
@@ -43,6 +47,9 @@ services:
 
   etl:
     image: vadimiki/etl:2.0
+    container_name: etl
+    env_file:
+      - ./etl/.env
     <<: *app
     depends_on:
       - db
@@ -74,7 +81,7 @@ services:
     env_file:
       - .env
     volumes:
-      - db_data:/var/lib/postgresql/data
+      - dbdata:/var/lib/postgresql/data
       - ./dump.sql:/docker-entrypoint-initdb.d/dump.sql
 
   redis:
@@ -92,6 +99,7 @@ services:
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/configs/:/etc/nginx/conf.d/:ro
+      - static:/data/static/:ro
     depends_on:
       - app
     ports:
