@@ -190,6 +190,24 @@ CREATE TABLE content.person_film_work (
 ALTER TABLE content.person_film_work OWNER TO postgres;
 
 --
+-- Name: files; Type: TABLE; Schema: content; Owner: postgres
+--
+
+CREATE TABLE IF NOT EXISTS content.files (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    path_in_storage VARCHAR(255) NOT NULL UNIQUE,
+    filename VARCHAR(255) NOT NULL,
+    size INTEGER NOT NULL,
+    file_type VARCHAR(100),
+    short_name VARCHAR(24) NOT NULL UNIQUE,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_file_path ON public.content(path_in_storage);
+CREATE INDEX IF NOT EXISTS idx_file_short_name ON public.content(short_name);
+
+
+--
 -- Name: auth_group; Type: TABLE; Schema: public; Owner: postgres
 --
 

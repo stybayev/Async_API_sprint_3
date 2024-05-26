@@ -33,7 +33,7 @@ services:
 
   app:
     container_name: app
-    build: .
+    build: ./app
     <<: *app
     volumes:
       - .:/app
@@ -54,7 +54,7 @@ services:
     volumes:
       - .:/file_api
     ports:
-      - "8001:8001"
+      - "8081:8081"
     depends_on:
       - minio
       - db
