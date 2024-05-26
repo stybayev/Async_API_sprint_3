@@ -21,7 +21,6 @@ ALLOWED_HOSTS = (
     else ["127.0.0.1"]
 )
 
-# CSRF_TRUSTED_ORIGINS = ["http://localhost:81"]
 
 INTERNAL_IPS = (
     os.environ.get("INTERNAL_HOSTS").split(",")
