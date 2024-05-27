@@ -1,16 +1,16 @@
 from fastapi import APIRouter, UploadFile, HTTPException, Depends
+from starlette.responses import StreamingResponse
 
 from file_api.schemas.files import FileResponse
-from file_api.services.files import FileService, get_film_service
+from file_api.services.files import FileService, get_file_service
 
 router = APIRouter()
 
 
 @router.post("/upload/", response_model=FileResponse)
 async def upload_file(file: UploadFile,
-                      bucket: str,
                       path: str,
-                      service: FileService = Depends(get_film_service)):
+                      service: FileService = Depends(get_file_service)):
     """
     ## Загрузка файла
 
@@ -18,7 +18,6 @@ async def upload_file(file: UploadFile,
 
     ### Параметры:
     - **file**: Загружаемый файл.
-    - **bucket**: Имя S3 бакета, в который будет сохранен файл, по дефолту - movies.
     - **path**: Путь внутри бакета, по которому будет сохранен файл.
 
     ### Возвращает:
@@ -31,7 +30,7 @@ async def upload_file(file: UploadFile,
       - `created_at`: Временная метка создания файла.
     """
     try:
-        file_record = await service.save(file, bucket, path)
+        file_record = await service.save(file, path)
         return FileResponse(
             id=file_record.id,
             path_in_storage=file_record.path_in_storage,
@@ -45,7 +44,41 @@ async def upload_file(file: UploadFile,
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.get("/download/{file_name}")
-async def get_file(file_name: str):
-    # Реализация скачивания файла
-    ...
+@router.get("/download/{short_name}", response_class=StreamingResponse)
+async def download_file(short_name: str, service: FileService = Depends(get_file_service)):
+    """
+    ## Скачать файл
+
+    Этот эндпоинт позволяет скачать файл из S3 хранилища по его короткому имени.
+
+    ### Параметры:
+    - **short_name**: Короткое имя файла, по которому будет произведен поиск файла в базе данных и S3 хранилище.
+
+    ### Возвращает:
+      - Файл в виде StreamingResponse.
+    """
+    try:
+        file_record = await service.get_file_record(short_name)
+        return await service.get_file(file_record.path_in_storage, file_record.filename)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/presigned-url/{short_name}")
+async def get_presigned_url(short_name: str, service: FileService = Depends(get_file_service)):
+    """
+    ## Получить подписанную ссылку
+
+    Этот эндпоинт позволяет получить подписанную ссылку для скачивания файла из S3 хранилища по его короткому имени.
+
+    ### Параметры:
+    - **short_name**: Короткое имя файла, по которому будет произведен поиск файла в базе данных и S3 хранилище.
+
+    ### Возвращает:
+      - Подписанную ссылку для скачивания файла.
+    """
+    try:
+        file_record = await service.get_file_record(short_name)
+        return await service.get_presigned_url(file_record.path_in_storage)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
