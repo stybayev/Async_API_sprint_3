@@ -16,6 +16,19 @@ volumes:
 
 
 services:
+  django_admin:
+    build: django_admin
+    image: app-django-admin:dev
+    volumes:
+      - media:/opt/app/media
+      - static:/opt/app/static
+    depends_on:
+      - db
+    env_file:
+      - .env
+    expose:
+      - ${DJANGO_PORT}
+    restart: unless-stopped
 
   app:
     container_name: app
@@ -46,8 +59,9 @@ services:
       - db
 
   etl:
-    image: vadimiki/etl:2.0
+#    image: vadimiki/etl:2.0
     container_name: etl
+    build: ./etl/postgres_to_es
     env_file:
       - ./etl/.env
     <<: *app
