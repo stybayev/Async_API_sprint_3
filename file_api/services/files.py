@@ -57,7 +57,7 @@ class FileService:
         )
         file_record = file_record.scalar_one_or_none()
         if not file_record:
-            raise NotFoundException(detail="File not found")
+            raise NotFoundException(detail='File not found')
         return file_record
 
     async def get_file(self, path: str, filename: str) -> StreamingResponse:
@@ -68,14 +68,14 @@ class FileService:
                     async for chunk in result.content.iter_chunked(32 * 1024):
                         yield chunk
             except Exception as e:
-                logging.error(f"Failed to download file: {e}")
+                logging.error(f'Failed to download file: {e}')
                 return
 
         encoded_filename = urllib.parse.quote(filename)
 
         return StreamingResponse(
             file_stream(),
-            media_type="application/octet-stream",
+            media_type='application/octet-stream',
             headers={"Content-Disposition": f"attachment; filename*=UTF-8''{encoded_filename}"}
         )
 
