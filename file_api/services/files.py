@@ -82,9 +82,6 @@ class FileService:
     async def get_presigned_url(self, path: str) -> str:
         return await self.client.get_presigned_url('GET', settings.backet_name, path, expires=timedelta(days=1), )
 
-    async def get_presigned_url(self, path: str) -> str:
-        return await self.client.get_presigned_url('GET', settings.backet_name, path, expires=timedelta(days=1), )
-
 
 @lru_cache()
 def get_file_service(minio: Minio = Depends(get_minio),
