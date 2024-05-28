@@ -1,19 +1,13 @@
 import logging
-import os
-import tempfile
 import urllib
 from datetime import timedelta
 from functools import lru_cache
-
 from aiohttp import ClientSession
 from fastapi import UploadFile, Depends, HTTPException
 from miniopy_async import Minio
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-
-from starlette.responses import StreamingResponse, FileResponse
-
-from app.core import logger
+from starlette.responses import StreamingResponse
 from file_api.core.config import settings
 from file_api.db.db import get_db_session
 from file_api.db.minio import get_minio
@@ -64,24 +58,31 @@ class FileService:
             raise HTTPException(status_code=404, detail="File not found")
         return file_record
 
-    async def get_file(self, path: str, filename: str) -> FileResponse:
-        temp_file = tempfile.NamedTemporaryFile(delete=False)
-        temp_file_path = temp_file.name
-        async with ClientSession() as session:
-            result = await self.client.get_object(settings.backet_name, path, session=session)
+    async def get_file(self, path: str, filename: str) -> StreamingResponse:
+        async def file_stream():
+            try:
+                async with ClientSession() as session:
+                    result = await self.client.get_object(settings.backet_name, path, session=session)
+                    async for chunk in result.content.iter_chunked(32 * 1024):
+                        yield chunk
+            except Exception as e:
+                logging.error(f"Failed to download file: {e}")
+                return
 
-            with open(temp_file_path, 'wb') as f:
-                async for chunk in result.content.iter_chunked(32 * 1024):
-                    f.write(chunk)
+        encoded_filename = urllib.parse.quote(filename)
 
-        return FileResponse(
-            path=temp_file_path,
+        return StreamingResponse(
+            file_stream(),
             media_type="application/octet-stream",
-            filename=f"{filename}"
+            headers={"Content-Disposition": f"attachment; filename*=UTF-8''{encoded_filename}"}
         )
 
     async def get_presigned_url(self, path: str) -> str:
-        return await self.client.get_presigned_url('GET', settings.backet_name, path, expires=timedelta(days=1),)
+        return await self.client.get_presigned_url('GET', settings.backet_name, path, expires=timedelta(days=1), )
+
+    async def get_presigned_url(self, path: str) -> str:
+        return await self.client.get_presigned_url('GET', settings.backet_name, path, expires=timedelta(days=1), )
+
 
 @lru_cache()
 def get_file_service(minio: Minio = Depends(get_minio),
