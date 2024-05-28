@@ -12,8 +12,8 @@ from file_api.db.minio import set_minio, close_minio, create_bucket_if_not_exist
 async def lifespan(app: FastAPI):
     minio_client = Minio(
         endpoint=settings.minio_host,
-        access_key=settings.minio_access_key,
-        secret_key=settings.minio_secret_key,
+        access_key=settings.minio_root_user,
+        secret_key=settings.minio_root_password,
         secure=False,
     )
     set_minio(minio_client)

@@ -37,8 +37,8 @@ class Settings(BaseSettings):
     # MinIO
     minio_host: str = Field(default='0.0.0.0', env='MINIO_HOST')
     minio_port: int = Field(default=9000, env='MINIO_PORT')
-    minio_access_key: str = Field(default='minioadmin', env='MINIO_ACCESS_KEY')
-    minio_secret_key: str = Field(default='minioadmin', env='MINIO_SECRET_KEY')
+    minio_root_user: str = Field(default='practicum', env='MINIO_ROOT_USER')
+    minio_root_password: str = Field(default='StrongPass', env='MINIO_ROOT_PASSWORD')
     backet_name: str = Field(default='movies', env='BACKET_NAME')
 
     # DB
