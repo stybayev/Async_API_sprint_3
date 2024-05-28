@@ -3,6 +3,7 @@ from starlette.responses import StreamingResponse
 
 from file_api.schemas.files import FileResponse
 from file_api.services.files import FileService, get_file_service
+from file_api.utils.exceptions import NotFoundException
 
 router = APIRouter()
 
@@ -60,6 +61,8 @@ async def download_file(short_name: str, service: FileService = Depends(get_file
     try:
         file_record = await service.get_file_record(short_name)
         return await service.get_file(file_record.path_in_storage, file_record.filename)
+    except NotFoundException as e:
+        raise e
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -80,5 +83,7 @@ async def get_presigned_url(short_name: str, service: FileService = Depends(get_
     try:
         file_record = await service.get_file_record(short_name)
         return await service.get_presigned_url(file_record.path_in_storage)
+    except NotFoundException as e:
+        raise e
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
