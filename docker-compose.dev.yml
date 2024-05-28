@@ -16,7 +16,6 @@ volumes:
 
 
 services:
-
   django_admin:
     build: django_admin
     image: app-django-admin:dev
