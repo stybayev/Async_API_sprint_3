@@ -14,6 +14,8 @@ from file_api.db.minio import get_minio
 from file_api.models.files import FileDbModel
 from shortuuid import uuid as shortuuid
 
+from file_api.utils.exceptions import NotFoundException
+
 
 class FileService:
     def __init__(self, minio: Minio, db_session: AsyncSession) -> None:
@@ -55,7 +57,7 @@ class FileService:
         )
         file_record = file_record.scalar_one_or_none()
         if not file_record:
-            raise HTTPException(status_code=404, detail="File not found")
+            raise NotFoundException(detail="File not found")
         return file_record
 
     async def get_file(self, path: str, filename: str) -> StreamingResponse:
