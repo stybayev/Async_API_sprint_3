@@ -207,6 +207,24 @@ CREATE TABLE IF NOT EXISTS content.files (
 CREATE INDEX IF NOT EXISTS idx_file_path ON content.files(path_in_storage);
 CREATE INDEX IF NOT EXISTS idx_file_short_name ON content.files(short_name);
 --
+-- Name: files; Type: TABLE; Schema: content; Owner: postgres
+--
+
+CREATE TABLE IF NOT EXISTS content.files (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    path_in_storage VARCHAR(255) NOT NULL UNIQUE,
+    filename VARCHAR(255) NOT NULL,
+    size INTEGER NOT NULL,
+    file_type VARCHAR(100),
+    short_name VARCHAR(24) NOT NULL UNIQUE,
+    created TIMESTAMP DEFAULT NOW(),
+    modified TIMESTAMP DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_file_path ON content.files(path_in_storage);
+CREATE INDEX IF NOT EXISTS idx_file_short_name ON content.files(short_name);
+
+--
 -- Name: auth_group; Type: TABLE; Schema: public; Owner: postgres
 --
 

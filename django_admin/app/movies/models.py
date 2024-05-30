@@ -51,9 +51,10 @@ class Filmwork(UUIDMixin, TimeStampledMixin):
     type = models.TextField(
         choices=TypeChoice.choices, default=TypeChoice.TV_SHOW, null=True
     )
+    file = FileField(storage=CustomStorage(), null=True)
     genres = models.ManyToManyField(Genre, through="GenreFilmwork")
     persons = models.ManyToManyField("Person", through="PersonFilmwork")
-    # file = FileField(storage=CustomStorage(), null=True)
+    # files = models.OneToOneField("Files", on_delete=models.CASCADE)
 
     def __str__(self):
         return self.title
@@ -131,6 +132,7 @@ class PersonFilmwork(UUIDMixin):
 
 
 class Files(UUIDMixin, TimeStampledMixin):
+
     path_in_storage = models.CharField(max_length=255, blank=False, null=False)
     filename = models.TextField(_("file name"))
     size = models.PositiveIntegerField(_("size"), null=False)
