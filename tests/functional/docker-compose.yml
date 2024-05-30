@@ -29,7 +29,7 @@ services:
 
   elasticsearch:
     container_name: test_elasticsearch
-    image: elasticsearch:8.6.2
+    image: registry.gitlab.com/dosxana/doskhan_dockerhub/elasticsearch:8.6.2
     environment:
       - discovery.type=single-node
       - xpack.security.enabled=false
@@ -44,8 +44,7 @@ services:
       - test_network
 
   redis:
-    container_name: test_redis
-    image: redis:alpine
+    image: registry.gitlab.com/dosxana/doskhan_dockerhub/redis:alpine
     expose:
       - 6379
     ports:
