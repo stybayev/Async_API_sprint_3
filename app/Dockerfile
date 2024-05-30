@@ -1,4 +1,4 @@
-FROM --platform=linux/amd64 python:3.10-slim-buster
+FROM registry.gitlab.com/dosxana/doskhan_dockerhub/python:3.10-slim-buster
 ENV PYTHONUNBUFFERED=1
 WORKDIR /app
 COPY requirements.txt /app

@@ -1,4 +1,4 @@
-FROM python:3.10
+FROM registry.gitlab.com/dosxana/doskhan_dockerhub/python:3.10-slim-buster
 
 WORKDIR /opt/app
 
