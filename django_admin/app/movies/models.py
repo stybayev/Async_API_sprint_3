@@ -51,9 +51,10 @@ class Filmwork(UUIDMixin, TimeStampledMixin):
     type = models.TextField(
         choices=TypeChoice.choices, default=TypeChoice.TV_SHOW, null=True
     )
+    file = FileField(storage=CustomStorage(), null=True)
     genres = models.ManyToManyField(Genre, through="GenreFilmwork")
     persons = models.ManyToManyField("Person", through="PersonFilmwork")
-    file = FileField(storage=CustomStorage(), null=True)
+    # files = models.OneToOneField("Files", on_delete=models.CASCADE)
 
     def __str__(self):
         return self.title
@@ -92,6 +93,7 @@ class Person(UUIDMixin, TimeStampledMixin):
     full_name = models.CharField(
         _("full name"), max_length=255, blank=False, null=False
     )
+
     # gender = models.TextField(_("gender"), choices=Gender.choices, null=True)
 
     def __str__(self):
@@ -126,4 +128,25 @@ class PersonFilmwork(UUIDMixin):
                 fields=["person", "film_work", "role"],
                 name="person_film_work_role_unique",
             )
+        ]
+
+
+class Files(UUIDMixin, TimeStampledMixin):
+
+    path_in_storage = models.CharField(max_length=255, blank=False, null=False)
+    filename = models.TextField(_("file name"))
+    size = models.PositiveIntegerField(_("size"), null=False)
+    file_type = models.CharField(max_length=100, null=False, blank=False)
+    short_name = models.CharField(max_length=25, null=False, blank=False, unique=True)
+
+    def __str__(self):
+        return self.short_name
+
+    class Meta:
+        db_table = 'content"."files'
+        verbose_name = "Файл"
+        verbose_name_plural = "Файлы"
+        indexes = [
+            models.Index(fields=["path_in_storage"], name="idx_file_path"),
+            models.Index(fields=["short_name"], name="idx_file_short_name")
         ]

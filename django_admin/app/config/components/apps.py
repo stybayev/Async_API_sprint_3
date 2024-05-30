@@ -13,4 +13,4 @@ DEBUG = os.environ.get("DEBUG", "False") == "True"
 if DEBUG:
     INSTALLED_APPS += ["debug_toolbar"]
 
-INSTALLED_APPS += ["movies", "rest_framework"]
+INSTALLED_APPS += ["movies"]
