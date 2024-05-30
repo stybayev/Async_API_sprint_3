@@ -59,11 +59,10 @@ services:
       - db
 
   etl:
-#    image: vadimiki/etl:2.0
     container_name: etl
     build: ./etl/postgres_to_es
     env_file:
-      - ./etl/.env
+      - .env
     <<: *app
     depends_on:
       - db
