@@ -8,9 +8,3 @@ MIDDLEWARE = [
     "debug_toolbar.middleware.DebugToolbarMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
-
-
-REST_FRAMEWORK = {
-    "DEFAULT_PAGINATION_CLASS": "movies.api.paginators.TotalPageCountPaginator",
-    "PAGE_SIZE": 50,
-}

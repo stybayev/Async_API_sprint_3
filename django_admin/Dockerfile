@@ -9,8 +9,7 @@ ENV UWSGI_HARAKIRI 240
 ENV DJANGO_SETTINGS_MODULE 'config.settings'
 ENV PIP_ROOT_USER_ACTION=ignore
 
-RUN groupadd -r django && useradd -d /opt/app -r -g django django \
-    && chown django:django -R /opt/app/
+RUN groupadd -r django && useradd -d /opt/app -r -g django django
 
 COPY app/requirements.txt requirements.txt
 COPY app/uwsgi/uwsgi.ini uwsgi.ini
@@ -27,10 +26,9 @@ RUN chmod +x docker-entrypoint.sh \
     && mkdir /opt/app/static \
     && mkdir /opt/app/uploads
 
-EXPOSE 8001
+RUN chown -R django:django /opt/app
 
-RUN chown -R django:django /opt/app/static \
-    && chown -R django:django /opt/app/uploads
+EXPOSE 8001
 
 USER django
 ENTRYPOINT ["/opt/app/docker-entrypoint.sh"]

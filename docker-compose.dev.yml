@@ -95,7 +95,7 @@ services:
       - .env
     volumes:
       - dbdata:/var/lib/postgresql/data
-      - ./dump.sql:/docker-entrypoint-initdb.d/dump.sql
+      - ./etl/dump.sql:/docker-entrypoint-initdb.d/dump.sql
 
   redis:
     image: registry.gitlab.com/dosxana/doskhan_dockerhub/redis:alpine

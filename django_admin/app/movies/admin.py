@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Filmwork, Genre, GenreFilmwork, Person, PersonFilmwork
+from .models import Filmwork, Genre, GenreFilmwork, Person, PersonFilmwork, Files
 
 
 # Register your models here.
@@ -31,3 +31,9 @@ class FilmworkAdmin(admin.ModelAdmin):
     list_filter = ("type",)
     search_fields = ("title", "description", "id")
     list_display = ("title", "type", "creation_date", "rating")
+
+
+@admin.register(Files)
+class FilesAdmin(admin.ModelAdmin):
+    search_fields = ("filename", "file_type", "id")
+    list_display = ("filename", "size", "file_type", "short_name")
