@@ -10,6 +10,6 @@ done
 echo "Database $DB_HOST:$DB_PORT is up and running!"
 
 python manage.py collectstatic --no-input
-python manage.py migrate
+# python manage.py migrate
 
 uwsgi --strict --ini uwsgi.ini
