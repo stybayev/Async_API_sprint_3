@@ -1,7 +1,7 @@
+import pytest
 from unittest.mock import AsyncMock, MagicMock
 from fastapi import UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
-import pytest
 from file_api.services.files import FileService
 
 
@@ -36,5 +36,5 @@ def test_file():
     file.content_type = "text/plain"
     file.read = AsyncMock(return_value=b"test content")
     file.seek = AsyncMock()
-    file.file = MagicMock()  # Добавление атрибута `file`
+    file.file = MagicMock()
     return file
