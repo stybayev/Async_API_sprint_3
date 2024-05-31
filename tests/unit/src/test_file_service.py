@@ -1,10 +1,3 @@
-# import pytest
-#
-#
-# @pytest.mark.asyncio
-# async def test_save_file():
-#     assert True
-
 import pytest
 from unittest.mock import AsyncMock, MagicMock
 from fastapi import UploadFile
@@ -46,6 +39,7 @@ def test_file():
     file.content_type = "text/plain"
     file.read = AsyncMock(return_value=b"test content")
     file.seek = AsyncMock()
+    file.file = MagicMock()  # Добавление атрибута `file`
     return file
 
 @pytest.mark.asyncio
@@ -60,24 +54,3 @@ async def test_save_file(file_service, test_file):
     file_service.db_session.add.assert_called_once()
     file_service.db_session.commit.assert_called_once()
     file_service.db_session.refresh.assert_called_once()
-
-# async def test_get_file_record(file_service):
-#     short_name = "test_short_name"
-#     expected_record = FileDbModel(
-#         path_in_storage="test/path",
-#         filename="test.txt",
-#         short_name=short_name,
-#         size=100,
-#         file_type="text/plain"
-#     )
-#
-#     file_service.db_session.execute.return_value.scalar_one_or_none = AsyncMock(return_value=expected_record)
-#     file_record = await file_service.get_file_record(short_name)
-#     assert file_record == expected_record
-#
-# async def test_get_file_record_not_found(file_service):
-#     short_name = "nonexistent_short_name"
-#     file_service.db_session.execute.return_value.scalar_one_or_none = AsyncMock(return_value=None)
-#
-#     with pytest.raises(NotFoundException):
-#         await file_service.get_file_record(short_name)
