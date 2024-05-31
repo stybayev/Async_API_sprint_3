@@ -2,10 +2,18 @@ venv/
 .venv/
 .vscode/
 __pycache__/
-.*env
-env/
+
 tests/functional/.env.test
 questions
 .idea
 *.DS_Store
 .DS_Store
+
+# env
+.*env
+env/
+.env
+.env.local
+.env.production
+.env.development
+*.env.test
