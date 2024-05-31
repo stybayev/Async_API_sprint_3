@@ -1,42 +1,10 @@
 version: '3.7'
 
-volumes:
-  test_dbdata:
-  test_minio_storage:
-
 networks:
   test_network:
     driver: bridge
 
 services:
-  db:
-    image: postgres:14-alpine
-    container_name: test_db
-    environment:
-      POSTGRES_DB: testdb
-      POSTGRES_USER: testuser
-      POSTGRES_PASSWORD: testpassword
-    volumes:
-      - test_dbdata:/var/lib/postgresql/data
-    networks:
-      - test_network
-    ports:
-      - "5433:5432"
-
-  minio:
-    image: minio/minio
-    container_name: test_minio
-    environment:
-      MINIO_ROOT_USER: testuser
-      MINIO_ROOT_PASSWORD: testpassword
-    volumes:
-      - test_minio_storage:/data
-    networks:
-      - test_network
-    ports:
-      - "9011:9000"
-    command: server /data
-
   test_runner_unit:
     image: python:3.10-slim
     container_name: test_runner_unit
@@ -50,7 +18,3 @@ services:
     working_dir: /tests
     networks:
       - test_network
-    depends_on:
-      - db
-      - minio
-    command: ["pytest", "tests/unit"]
