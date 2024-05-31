@@ -11,8 +11,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    env_file:
-      - .env.test
     volumes:
       - ../..:/tests
     working_dir: /tests
