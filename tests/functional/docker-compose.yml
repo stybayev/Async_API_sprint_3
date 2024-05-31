@@ -68,4 +68,3 @@ services:
     networks:
       - test_network
 
-
