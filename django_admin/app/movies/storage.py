@@ -9,14 +9,14 @@ from django.utils.deconstruct import deconstructible
 class CustomStorage(Storage):
     def _save(self, name, content: InMemoryUploadedFile):
         r = requests.post(
-            f"{FILE_SERVICE_URL}/",
+            f"{FILE_SERVICE_URL}/api/v1/files/upload",
             files={"file": (content.name, content, content.content_type)},
         )
         print(r.json())
         return r.json().get("short_name")
 
     def url(self, name):
-        return f"{FILE_SERVICE_URL}/download-stream/{name}"
+        return f"{FILE_SERVICE_URL}/api/v1/files/download/{name}"
 
     def exists(self, name):
         return False

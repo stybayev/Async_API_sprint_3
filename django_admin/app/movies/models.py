@@ -54,7 +54,6 @@ class Filmwork(UUIDMixin, TimeStampledMixin):
     file = FileField(storage=CustomStorage(), null=True)
     genres = models.ManyToManyField(Genre, through="GenreFilmwork")
     persons = models.ManyToManyField("Person", through="PersonFilmwork")
-    # files = models.OneToOneField("Files", on_delete=models.CASCADE)
 
     def __str__(self):
         return self.title

@@ -28,7 +28,7 @@ async def upload_file(file: UploadFile,
       - `size`: Размер файла в байтах.
       - `file_type`: MIME-тип файла.
       - `short_name`: Короткое, уникальное имя файла.
-      - `created_at`: Временная метка создания файла.
+      - `created`: Временная метка создания файла.
     """
     try:
         file_record = await service.save(file, path)
@@ -39,7 +39,7 @@ async def upload_file(file: UploadFile,
             size=file_record.size,
             file_type=file_record.file_type,
             short_name=file_record.short_name,
-            created_at=file_record.created_at
+            created=file_record.created
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
