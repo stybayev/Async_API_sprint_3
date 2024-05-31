@@ -194,7 +194,7 @@ PARAMETERS = {
     'person_validation': [
         (
             {'persons': ''},
-            {'status': HTTPStatus.OK, 'length': 4}
+            {'status': HTTPStatus.OK, 'length': 3}
         )
     ],
     'person_films': [

@@ -11,7 +11,7 @@ networks:
 services:
   app:
     container_name: test_app
-    build: ../../.
+    build: ../../app/.
     volumes:
       - ../../:/app
     restart: always
