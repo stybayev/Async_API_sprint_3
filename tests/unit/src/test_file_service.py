@@ -22,7 +22,7 @@ async def test_save_file(file_service, test_file):
     """
     Тест сохранения файла
     """
-    path = "test/path"
+    path = 'test/path'
     file_record = await file_service.save(test_file, path)
 
     assert file_record.filename == test_file.filename
@@ -39,13 +39,13 @@ async def test_get_file_record_success(file_service, mock_db_session):
     """
     Тест успешного получения записи файла по короткому имени.
     """
-    short_name = "short_name_123"
+    short_name = 'short_name_123'
     mock_file_record = FileDbModel(
-        path_in_storage="test/path",
-        filename="test.txt",
+        path_in_storage='test/path',
+        filename='test.txt',
         short_name=short_name,
         size=123,
-        file_type="text/plain",
+        file_type='text/plain',
     )
 
     # Настраиваем mock на возврат записи файла
@@ -67,7 +67,7 @@ async def test_get_file_record_not_found(file_service, mock_db_session):
     """
     Тест ситуации, когда запись файла не найдена по короткому имени.
     """
-    short_name = "short_name_123"
+    short_name = 'short_name_123'
 
     mock_db_session.execute.return_value.scalar_one_or_none = MagicMock(return_value=None)
 
@@ -82,8 +82,8 @@ async def test_get_file(file_service, mock_minio_client):
     """
     Тест успешного получения файла из Minio.
     """
-    path = "test/path"
-    filename = "test.txt"
+    path = 'test/path'
+    filename = 'test.txt'
     content = b"test content"
 
     # Создаем mock ответа Minio get_object
@@ -101,10 +101,10 @@ async def test_get_presigned_url(file_service, mock_db_session, mock_minio_clien
     """
     Тест успешного получения подписанной ссылки.
     """
-    short_name = "short_name_123"
+    short_name = 'short_name_123'
 
     # Настраиваем mock на возврат записи файла
-    mock_presigned_url = "http://presigned.url"
+    mock_presigned_url = 'http://presigned.url'
     mock_minio_client.get_presigned_url.return_value = mock_presigned_url
 
     # Сравнение вызова get_presigned_url
@@ -113,57 +113,45 @@ async def test_get_presigned_url(file_service, mock_db_session, mock_minio_clien
 
 
 @pytest.mark.anyio
-async def test_ping():
-    async with AsyncClient(app=app, base_url='http://localhost/api/v1/files/') as client:
-        response = await client.get('/')
-    # print(response.content)
-    assert response.status_code == status.HTTP_200_OK
+async def test_download_file_success(mock_db_session, mock_minio_client,
+                                     async_client, override_dependencies):
+    short_name = 'short_name_123'
+    path_in_storage = 'test/path'
+    filename = 'test.txt'
+    content = b'test content'
 
-
-@pytest.mark.anyio
-async def test_download_file_success(mock_db_session, mock_minio_client):
-    """
-    Тест успешного скачивания файла.
-    """
-    short_name = "short_name_123"
-    path_in_storage = "test/path"
-    filename = "test.txt"
-    content = b"test content"
-
-    # Настраиваем mock на возврат записи файла
     mock_file_record = FileDbModel(
         path_in_storage=path_in_storage,
         filename=filename,
         short_name=short_name,
         size=123,
-        file_type="text/plain"
+        file_type='text/plain'
     )
-
-    # Обратите внимание на await для возвращения mock записи
     mock_db_session.execute.return_value.scalar_one_or_none = MagicMock(return_value=mock_file_record)
 
-    # Создаем mock ответа Minio get_object
     async def mock_iter_chunked(chunk_size):
         yield content
 
     mock_response = MagicMock(ClientResponse)
-    mock_stream_reader = MagicMock(StreamReader)
-    mock_stream_reader.iter_chunked = mock_iter_chunked
-    mock_response.content = mock_stream_reader
+    mock_response.content = MagicMock(StreamReader)
+    mock_response.content.iter_chunked = mock_iter_chunked
     mock_minio_client.get_object.return_value = mock_response
 
-    # Переопределяем зависимости в FastAPI
-    app.dependency_overrides[get_db_session] = lambda: mock_db_session
-    app.dependency_overrides[get_minio] = lambda: mock_minio_client
-
-    async with AsyncClient(app=app, base_url="http://localhost/api/v1/files") as client:
-        response = await client.get(f"/download/{short_name}")
-
+    response = await async_client.get(f'/download/{short_name}')
     response_content = await response.aread()
 
     assert response.status_code == status.HTTP_200_OK
     assert response_content == content
-    assert response.headers["content-disposition"] == f"attachment; filename*=UTF-8''{filename}"
+    assert response.headers['content-disposition'] == f"attachment; filename*=UTF-8''{filename}"
 
-    # Сбрасываем переопределения
-    app.dependency_overrides = {}
+
+@pytest.mark.anyio
+async def test_download_file_not_found(mock_db_session, async_client, override_dependencies):
+    short_name = 'short_name_123'
+
+    mock_db_session.execute.return_value.scalar_one_or_none = MagicMock(return_value=None)
+
+    response = await async_client.get(f'/download/{short_name}')
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+    assert response.json() == {"detail": "File not found"}
