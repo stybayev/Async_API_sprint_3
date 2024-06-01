@@ -30,10 +30,10 @@ class FilmworkAdmin(admin.ModelAdmin):
     inlines = (GenreFilworkInline, PersonFilmworkInline)
     list_filter = ("type",)
     search_fields = ("title", "description", "id")
-    list_display = ("title", "type", "creation_date", "rating")
+    list_display = ("title", "type", "creation_date", "rating", "file")
 
 
-# @admin.register(Files)
-# class FilesAdmin(admin.ModelAdmin):
-#     search_fields = ("filename", "file_type", "id")
-#     list_display = ("filename", "size", "file_type", "short_name")
+@admin.register(Files)
+class FilesAdmin(admin.ModelAdmin):
+    search_fields = ("filename", "file_type", "id")
+    list_display = ("filename", "size", "file_type", "short_name")

@@ -51,7 +51,7 @@ class Filmwork(UUIDMixin, TimeStampledMixin):
     type = models.TextField(
         choices=TypeChoice.choices, default=TypeChoice.TV_SHOW, null=True
     )
-    file = FileField(storage=CustomStorage(), null=True)
+    file = FileField(storage=CustomStorage(), null=True,upload_to="uploads/%Y/%m/%d/")
     genres = models.ManyToManyField(Genre, through="GenreFilmwork")
     persons = models.ManyToManyField("Person", through="PersonFilmwork")
 
