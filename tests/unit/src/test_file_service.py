@@ -111,33 +111,39 @@ async def test_get_presigned_url(file_service, mock_db_session, mock_minio_clien
     assert presigned_url == mock_presigned_url
 
 
-@pytest.mark.asyncio
-async def test_download_file_success(file_service, mocker):
+@pytest.mark.anyio
+async def test_download_file_success(mock_db_session, mock_minio_client):
     """
     Тест успешного скачивания файла.
     """
     short_name = "short_name_123"
-    file_path = "test/path"
-    file_name = "test.txt"
-    file_content = b"test content"
+    path_in_storage = "test/path"
+    filename = "test.txt"
+    content = b"test content"
 
-    # Мокаем метод file_service.get_file_record
-    mocker.patch.object(file_service, 'get_file_record', return_value=AsyncMock())
-    file_service.get_file_record.return_value.path_in_storage = file_path
-    file_service.get_file_record.return_value.filename = file_name
-
-    # Мокаем метод file_service.get_file
-    mocker.patch.object(file_service, 'get_file', return_value=AsyncMock())
-    file_service.get_file.return_value = StreamingResponse(
-        iter([file_content]), media_type='application/octet-stream',
-        headers={"Content-Disposition": f"attachment; filename*=UTF-8''{file_name}"}
+    # Настраиваем mock на возврат записи файла
+    mock_file_record = FileDbModel(
+        path_in_storage=path_in_storage,
+        filename=filename,
+        short_name=short_name,
+        size=123,
+        file_type="text/plain"
     )
+    mock_db_session.execute.return_value.scalar_one_or_none = AsyncMock(return_value=mock_file_record)
 
-    async with AsyncClient(app=app, base_url="http://test") as client:
+    # Создаем mock ответа Minio get_object
+    mock_response = MagicMock(ClientResponse)
+    mock_response.content = MagicMock(StreamReader)
+    mock_response.content.iter_chunked = AsyncMock(return_value=[content])
+    mock_minio_client.get_object.return_value = mock_response
+
+    async with AsyncClient(app=app, base_url="http://localhost:8081") as client:
         response = await client.get(f"/api/v1/files/download/{short_name}")
+
     print(response.status_code)
     print(response.content)
+    print(response.headers)
 
-    # assert response.status_code == 200
-    # assert response.content == file_content
-    # assert response.headers["Content-Disposition"] == f"attachment; filename*=UTF-8''{file_name}"
+    assert response.status_code == status.HTTP_200_OK
+    # assert response.content == content
+    # assert response.headers["content-disposition"] == f"attachment; filename*=UTF-8''{filename}"

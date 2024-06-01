@@ -9,17 +9,19 @@ from file_api.main import app
 from file_api.services.files import FileService
 from miniopy_async import Minio
 from httpx import AsyncClient
+import pytest
 
 
 @pytest_asyncio.fixture(scope='session', autouse=True)
 def event_loop():
-    """
-    Фикстура для управления событийным циклом в тестах.
-    """
-    loop = asyncio.new_event_loop()
+    loop = asyncio.get_event_loop()
     yield loop
     loop.close()
 
+
+@pytest.fixture
+def anyio_backend():
+    return 'asyncio'
 
 
 @pytest_asyncio.fixture(name='mock_minio_client', scope='session')
@@ -72,6 +74,3 @@ def fixture_test_file():
     file.seek = AsyncMock()
     file.file = MagicMock()
     return file
-
-
-
