@@ -1,10 +1,6 @@
-from datetime import timedelta
-
 from sqlalchemy.future import select
-
-from file_api.core.config import settings
 from file_api.models.files import FileDbModel
-from unittest.mock import AsyncMock, MagicMock, call
+from unittest.mock import AsyncMock, MagicMock
 from aiohttp import ClientResponse, StreamReader
 from starlette.responses import StreamingResponse
 
