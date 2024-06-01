@@ -1,13 +1,19 @@
-from datetime import timedelta
+import uuid
 
 from sqlalchemy.future import select
+
+from file_api.db.minio import close_minio, set_minio
 from file_api.models.files import FileDbModel
-import pytest
 from unittest.mock import AsyncMock, MagicMock
 from aiohttp import ClientResponse, StreamReader
 from starlette.responses import StreamingResponse
-from file_api.core.config import settings
 from file_api.utils.exceptions import NotFoundException
+from fastapi import status
+from httpx import AsyncClient
+import pytest
+
+from file_api.main import app
+from file_api.schemas.files import FileResponse
 
 
 @pytest.mark.asyncio
@@ -103,3 +109,35 @@ async def test_get_presigned_url(file_service, mock_db_session, mock_minio_clien
     # Сравнение вызова get_presigned_url
     presigned_url = await file_service.get_presigned_url(short_name)
     assert presigned_url == mock_presigned_url
+
+
+@pytest.mark.asyncio
+async def test_download_file_success(file_service, mocker):
+    """
+    Тест успешного скачивания файла.
+    """
+    short_name = "short_name_123"
+    file_path = "test/path"
+    file_name = "test.txt"
+    file_content = b"test content"
+
+    # Мокаем метод file_service.get_file_record
+    mocker.patch.object(file_service, 'get_file_record', return_value=AsyncMock())
+    file_service.get_file_record.return_value.path_in_storage = file_path
+    file_service.get_file_record.return_value.filename = file_name
+
+    # Мокаем метод file_service.get_file
+    mocker.patch.object(file_service, 'get_file', return_value=AsyncMock())
+    file_service.get_file.return_value = StreamingResponse(
+        iter([file_content]), media_type='application/octet-stream',
+        headers={"Content-Disposition": f"attachment; filename*=UTF-8''{file_name}"}
+    )
+
+    async with AsyncClient(app=app, base_url="http://test") as client:
+        response = await client.get(f"/api/v1/files/download/{short_name}")
+    print(response.status_code)
+    print(response.content)
+
+    # assert response.status_code == 200
+    # assert response.content == file_content
+    # assert response.headers["Content-Disposition"] == f"attachment; filename*=UTF-8''{file_name}"

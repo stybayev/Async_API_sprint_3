@@ -3,8 +3,12 @@ import pytest_asyncio
 from unittest.mock import AsyncMock, MagicMock
 from fastapi import UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from file_api.db.minio import set_minio, close_minio
+from file_api.main import app
 from file_api.services.files import FileService
 from miniopy_async import Minio
+from httpx import AsyncClient
 
 
 @pytest_asyncio.fixture(scope='session', autouse=True)
@@ -12,9 +16,10 @@ def event_loop():
     """
     Фикстура для управления событийным циклом в тестах.
     """
-    loop = asyncio.get_event_loop()
+    loop = asyncio.new_event_loop()
     yield loop
     loop.close()
+
 
 
 @pytest_asyncio.fixture(name='mock_minio_client', scope='session')
@@ -27,8 +32,10 @@ async def fixture_mock_minio_client():
     client.get_object = AsyncMock()
     client.get_presigned_url = AsyncMock()
     client.close = AsyncMock()
+    set_minio(client)
     yield client
     await client.close()
+    await close_minio()
 
 
 @pytest_asyncio.fixture(name='mock_db_session', scope='session')
@@ -65,3 +72,6 @@ def fixture_test_file():
     file.seek = AsyncMock()
     file.file = MagicMock()
     return file
+
+
+
