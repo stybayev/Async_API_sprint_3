@@ -84,11 +84,13 @@ curl -XPUT http://${host}:${port}/movies -H 'Content-Type: application/json' -d'
         "analyzer": "ru_en"
       },
       "director": {
-        "type": "text",
-        "analyzer": "ru_en",
-        "fields": {
-          "raw": {
+        "type": "nested",
+        "properties": {
+          "id": {
             "type": "keyword"
+          },
+          "name": {
+            "type": "text"
           }
         }
       },

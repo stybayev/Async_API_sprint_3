@@ -136,9 +136,7 @@ class RepositoryElastic(Repository, Generic[ModelType, PaginatedModel]):
         else:
             query_body = {
                 "query": {
-                    "bool": {
-                        "must": []
-                    }
+                    "match_all": {}
                 },
                 "sort": [],
                 "from": offset,
