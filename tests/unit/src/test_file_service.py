@@ -1,20 +1,16 @@
-import uuid
+from datetime import timedelta
 
 from sqlalchemy.future import select
 
-from file_api.db.db import get_db_session
-from file_api.db.minio import close_minio, set_minio, get_minio
+from file_api.core.config import settings
 from file_api.models.files import FileDbModel
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import AsyncMock, MagicMock, call
 from aiohttp import ClientResponse, StreamReader
 from starlette.responses import StreamingResponse
+
 from file_api.utils.exceptions import NotFoundException
 from fastapi import status
-from httpx import AsyncClient
 import pytest
-
-from file_api.main import app
-from file_api.schemas.files import FileResponse
 
 
 @pytest.mark.asyncio
@@ -154,4 +150,46 @@ async def test_download_file_not_found(mock_db_session, async_client, override_d
     response = await async_client.get(f'/download/{short_name}')
 
     assert response.status_code == status.HTTP_404_NOT_FOUND
-    assert response.json() == {"detail": "File not found"}
+    assert response.json() == {'detail': 'File not found'}
+
+
+@pytest.mark.anyio
+async def test_get_presigned_url_success(mock_db_session, mock_minio_client,
+                                         async_client, override_dependencies):
+    """
+    Тест успешного получения подписанной ссылки.
+    """
+    short_name = 'short_name_123'
+    path_in_storage = 'test/path'
+    mock_presigned_url = 'http://presigned.url'
+
+    mock_file_record = FileDbModel(
+        path_in_storage=path_in_storage,
+        filename='test.txt',
+        short_name=short_name,
+        size=123,
+        file_type='text/plain'
+    )
+
+    mock_db_session.execute.return_value.scalar_one_or_none = MagicMock(return_value=mock_file_record)
+    mock_minio_client.get_presigned_url.return_value = mock_presigned_url
+
+    response = await async_client.get(f'/presigned-url/{short_name}')
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == mock_presigned_url
+
+
+@pytest.mark.anyio
+async def test_get_presigned_url_not_found(mock_db_session, async_client, override_dependencies):
+    """
+    Тест получения ошибки 404 при попытке получить подписанную ссылку для несуществующего файла.
+    """
+    short_name = 'short_name_123'
+
+    mock_db_session.execute.return_value.scalar_one_or_none = MagicMock(return_value=None)
+
+    response = await async_client.get(f'/presigned-url/{short_name}')
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+    assert response.json() == {'detail': 'File not found'}
