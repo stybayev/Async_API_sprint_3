@@ -8,9 +8,10 @@ class Film(BaseFilm):
     genre: List[str]
     actors_names: List[str]
     writers_names: List[str]
-    director: Director
+    director: Optional[dict] = {}
     actors: List[Actor]
     writers: List[Writer]
+    file: Optional[str] = None
 
 
 class Films(BaseFilm, PaginatedParams):

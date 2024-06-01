@@ -56,6 +56,7 @@ class RepositoryElastic(Repository, Generic[ModelType, PaginatedModel]):
             )
         except NotFoundError:
             return None
+        print(doc["_source"])
         return self._model(**doc["_source"])
 
     async def put(self):
