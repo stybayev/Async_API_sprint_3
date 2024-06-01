@@ -16,7 +16,7 @@ class FileDbModel(Base):
     size = Column(Integer, nullable=False)
     file_type = Column(String(100), nullable=True)
     short_name = Column(String(24), nullable=False, unique=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created = Column(DateTime, default=datetime.utcnow)
 
     Index('idx_file_path', 'path_in_storage', unique=True)
     Index('idx_file_short_name', 'short_name', unique=True)

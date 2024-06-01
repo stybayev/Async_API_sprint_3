@@ -9,4 +9,4 @@ class FileResponse(BaseModel):
     size: int
     file_type: str
     short_name: str
-    created_at: datetime
+    created: datetime
