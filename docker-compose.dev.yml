@@ -62,7 +62,7 @@ services:
     container_name: etl
     build: ./etl/postgres_to_es
     env_file:
-      - ./etl/.env
+      - .env
     <<: *app
     depends_on:
       - db
