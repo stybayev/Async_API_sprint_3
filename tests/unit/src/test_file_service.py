@@ -2,7 +2,8 @@ import uuid
 
 from sqlalchemy.future import select
 
-from file_api.db.minio import close_minio, set_minio
+from file_api.db.db import get_db_session
+from file_api.db.minio import close_minio, set_minio, get_minio
 from file_api.models.files import FileDbModel
 from unittest.mock import AsyncMock, MagicMock
 from aiohttp import ClientResponse, StreamReader
@@ -112,6 +113,14 @@ async def test_get_presigned_url(file_service, mock_db_session, mock_minio_clien
 
 
 @pytest.mark.anyio
+async def test_ping():
+    async with AsyncClient(app=app, base_url='http://localhost/api/v1/files/') as client:
+        response = await client.get('/')
+    # print(response.content)
+    assert response.status_code == status.HTTP_200_OK
+
+
+@pytest.mark.anyio
 async def test_download_file_success(mock_db_session, mock_minio_client):
     """
     Тест успешного скачивания файла.
@@ -129,21 +138,32 @@ async def test_download_file_success(mock_db_session, mock_minio_client):
         size=123,
         file_type="text/plain"
     )
-    mock_db_session.execute.return_value.scalar_one_or_none = AsyncMock(return_value=mock_file_record)
+
+    # Обратите внимание на await для возвращения mock записи
+    mock_db_session.execute.return_value.scalar_one_or_none = MagicMock(return_value=mock_file_record)
 
     # Создаем mock ответа Minio get_object
+    async def mock_iter_chunked(chunk_size):
+        yield content
+
     mock_response = MagicMock(ClientResponse)
-    mock_response.content = MagicMock(StreamReader)
-    mock_response.content.iter_chunked = AsyncMock(return_value=[content])
+    mock_stream_reader = MagicMock(StreamReader)
+    mock_stream_reader.iter_chunked = mock_iter_chunked
+    mock_response.content = mock_stream_reader
     mock_minio_client.get_object.return_value = mock_response
 
-    async with AsyncClient(app=app, base_url="http://localhost:8081") as client:
-        response = await client.get(f"/api/v1/files/download/{short_name}")
+    # Переопределяем зависимости в FastAPI
+    app.dependency_overrides[get_db_session] = lambda: mock_db_session
+    app.dependency_overrides[get_minio] = lambda: mock_minio_client
 
-    print(response.status_code)
-    print(response.content)
-    print(response.headers)
+    async with AsyncClient(app=app, base_url="http://localhost/api/v1/files") as client:
+        response = await client.get(f"/download/{short_name}")
+
+    response_content = await response.aread()
 
     assert response.status_code == status.HTTP_200_OK
-    # assert response.content == content
-    # assert response.headers["content-disposition"] == f"attachment; filename*=UTF-8''{filename}"
+    assert response_content == content
+    assert response.headers["content-disposition"] == f"attachment; filename*=UTF-8''{filename}"
+
+    # Сбрасываем переопределения
+    app.dependency_overrides = {}

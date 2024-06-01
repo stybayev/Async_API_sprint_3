@@ -8,6 +8,11 @@ from file_api.utils.exceptions import NotFoundException
 router = APIRouter()
 
 
+@router.get('/')
+async def hello():
+    return {'Hello': 'Practicumasdfads!'}
+
+
 @router.post("/upload/", response_model=FileResponse)
 async def upload_file(file: UploadFile,
                       path: str,
