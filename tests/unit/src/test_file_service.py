@@ -1,9 +1,12 @@
-import pytest
-from unittest.mock import AsyncMock, MagicMock
+from datetime import timedelta
 
 from sqlalchemy.future import select
-
 from file_api.models.files import FileDbModel
+import pytest
+from unittest.mock import AsyncMock, MagicMock
+from aiohttp import ClientResponse, StreamReader
+from starlette.responses import StreamingResponse
+from file_api.core.config import settings
 from file_api.utils.exceptions import NotFoundException
 
 
@@ -65,3 +68,38 @@ async def test_get_file_record_not_found(file_service, mock_db_session):
         await file_service.get_file_record(short_name)
 
     assert exc_info.value.detail == 'File not found'
+
+
+@pytest.mark.asyncio
+async def test_get_file(file_service, mock_minio_client):
+    """
+    Тест успешного получения файла из Minio.
+    """
+    path = "test/path"
+    filename = "test.txt"
+    content = b"test content"
+
+    # Создаем mock ответа Minio get_object
+    mock_response = MagicMock(ClientResponse)
+    mock_response.content = MagicMock(StreamReader)
+    mock_response.content.iter_chunked = AsyncMock(return_value=[content])
+    mock_minio_client.get_object.return_value = mock_response
+
+    response = await file_service.get_file(path, filename)
+    assert isinstance(response, StreamingResponse)
+
+
+@pytest.mark.asyncio
+async def test_get_presigned_url(file_service, mock_db_session, mock_minio_client):
+    """
+    Тест успешного получения подписанной ссылки.
+    """
+    short_name = "short_name_123"
+
+    # Настраиваем mock на возврат записи файла
+    mock_presigned_url = "http://presigned.url"
+    mock_minio_client.get_presigned_url.return_value = mock_presigned_url
+
+    # Сравнение вызова get_presigned_url
+    presigned_url = await file_service.get_presigned_url(short_name)
+    assert presigned_url == mock_presigned_url
