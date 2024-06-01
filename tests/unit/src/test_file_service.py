@@ -1,5 +1,8 @@
 import pytest
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, MagicMock
+
+from sqlalchemy.future import select
+
 from file_api.models.files import FileDbModel
 from file_api.utils.exceptions import NotFoundException
 
@@ -22,44 +25,43 @@ async def test_save_file(file_service, test_file):
 
 
 @pytest.mark.asyncio
-async def test_get_file_record_found(file_service, mock_db_session):
+async def test_get_file_record_success(file_service, mock_db_session):
     """
-    Тест успешного получения записи о файле
+    Тест успешного получения записи файла по короткому имени.
     """
-    # Создаем фейковую запись о файле
-    file_record = FileDbModel(
+    short_name = "short_name_123"
+    mock_file_record = FileDbModel(
         path_in_storage="test/path",
         filename="test.txt",
-        short_name="short_name",
+        short_name=short_name,
         size=123,
         file_type="text/plain",
     )
 
-    # Настраиваем возвращаемое значение для execute
-    mock_result = AsyncMock()
-    mock_result.scalar_one_or_none.return_value = file_record
-    mock_db_session.execute.return_value = mock_result
+    # Настраиваем mock на возврат записи файла
+    mock_db_session.execute.return_value.scalar_one_or_none = MagicMock(return_value=mock_file_record)
 
-    # Вызываем метод
-    result = await file_service.get_file_record("short_name")
+    # Сравнение вызова get_file_record
+    file_record = await file_service.get_file_record(short_name)
+    assert file_record == mock_file_record
 
-    # Проверяем результат
-    assert result == file_record
+    # Проверка вызова метода execute
+    query = select(FileDbModel).where(FileDbModel.short_name == short_name)
     mock_db_session.execute.assert_called_once()
+    args, _ = mock_db_session.execute.call_args
+    assert str(args[0]) == str(query)
 
 
 @pytest.mark.asyncio
 async def test_get_file_record_not_found(file_service, mock_db_session):
     """
-    Тест получения записи о файле, когда файл не найден
+    Тест ситуации, когда запись файла не найдена по короткому имени.
     """
-    # Настраиваем возвращаемое значение для execute
-    mock_result = AsyncMock()
-    mock_result.scalar_one_or_none.return_value = None
-    mock_db_session.execute.return_value = mock_result
+    short_name = "short_name_123"
 
-    # Вызываем метод и проверяем, что возникает исключение NotFoundException
-    with pytest.raises(NotFoundException):
-        await file_service.get_file_record("non_existent_short_name")
+    mock_db_session.execute.return_value.scalar_one_or_none = MagicMock(return_value=None)
 
-    mock_db_session.execute.assert_called_once()
+    with pytest.raises(NotFoundException) as exc_info:
+        await file_service.get_file_record(short_name)
+
+    assert exc_info.value.detail == 'File not found'

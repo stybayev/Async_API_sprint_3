@@ -26,7 +26,7 @@ async def fixture_mock_minio_client():
     client.put_object = AsyncMock()
     client.get_object = AsyncMock()
     client.get_presigned_url = AsyncMock()
-    client.close = AsyncMock()  # Добавляем мок для метода close
+    client.close = AsyncMock()
     yield client
     await client.close()
 
