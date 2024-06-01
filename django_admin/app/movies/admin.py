@@ -30,7 +30,7 @@ class FilmworkAdmin(admin.ModelAdmin):
     inlines = (GenreFilworkInline, PersonFilmworkInline)
     list_filter = ("type",)
     search_fields = ("title", "description", "id")
-    list_display = ("title", "type", "creation_date", "rating")
+    list_display = ("title", "type", "creation_date", "rating", "file")
 
 
 @admin.register(Files)

@@ -202,7 +202,6 @@ CREATE TABLE IF NOT EXISTS content.files (
     file_type VARCHAR(100),
     short_name VARCHAR(24) NOT NULL UNIQUE,
     created TIMESTAMP DEFAULT NOW(),
-    modified TIMESTAMP DEFAULT NOW()
 );
 
 CREATE INDEX IF NOT EXISTS idx_file_path ON content.files(path_in_storage);

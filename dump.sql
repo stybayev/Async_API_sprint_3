@@ -124,6 +124,7 @@ CREATE TABLE content.film_work (
     creation_date date,
     rating double precision,
     type text NOT NULL,
+    file text,
     created timestamp with time zone,
     modified timestamp with time zone
 );
@@ -200,7 +201,8 @@ CREATE TABLE IF NOT EXISTS content.files (
     size INTEGER NOT NULL,
     file_type VARCHAR(100),
     short_name VARCHAR(24) NOT NULL UNIQUE,
-    created_at TIMESTAMP DEFAULT NOW()
+    created TIMESTAMP DEFAULT NOW(),
+    modified timestamp with time zone
 );
 
 CREATE INDEX IF NOT EXISTS idx_file_path ON public.content(path_in_storage);
