@@ -25,9 +25,12 @@ class DataTransform:
             filmwork.writers_names = [writer.name for writer in filmwork.writers]
             filmwork.genre = row["genres"]
 
-            if director_list := list(director):
-                filmwork.director = director_list[0]["person_name"]
-
+            director_list = [
+                dto.Director(id=d["person_id"], name=d["person_name"])
+                for d in director
+            ]
+            if director_list:
+                filmwork.director = director_list[0]
             result.append(filmwork)
 
         return result

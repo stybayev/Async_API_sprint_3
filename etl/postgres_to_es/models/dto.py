@@ -13,6 +13,11 @@ class Writer(BaseModel):
     name: str
 
 
+class Director(BaseModel):
+    id: str
+    name: str
+
+
 class Filmwork(BaseModel):
     id: str
     imdb_rating: float | None
@@ -20,7 +25,7 @@ class Filmwork(BaseModel):
     file: str | None
     description: str | None
     genre: list[str] = field(default_factory=list)
-    director: str = field(default_factory=str)
+    director: dict = field(default_factory=dict)
     actors_names: list[str] = field(default_factory=list)
     writers_names: list[str] = field(default_factory=list)
     actors: list[Actor] = field(default_factory=list)

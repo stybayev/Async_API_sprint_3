@@ -1,12 +1,15 @@
+import os
+
 import orjson
 import logging
 
 from abc import ABC, abstractmethod
 from hashlib import md5
-
+import requests
 from pydantic import ValidationError
 
 from app.models.base_model import PaginatedParams, BaseModel, SearchParams
+from app.models.film import Film
 from elasticsearch import AsyncElasticsearch
 from elasticsearch.exceptions import NotFoundError
 from typing import TypeVar, Type, Generic, NoReturn, List
@@ -56,6 +59,10 @@ class RepositoryElastic(Repository, Generic[ModelType, PaginatedModel]):
             )
         except NotFoundError:
             return None
+        short_name = doc["_source"].get("file")
+        if short_name:
+            r = requests.get(f"{os.getenv('FILE_SERVICE_URL')}/presigned-url/{short_name}")
+            doc["_source"]["file"] = r.json()
         return self._model(**doc["_source"])
 
     async def put(self):
@@ -136,9 +143,7 @@ class RepositoryElastic(Repository, Generic[ModelType, PaginatedModel]):
         else:
             query_body = {
                 "query": {
-                    "bool": {
-                        "must": []
-                    }
+                    "match_all": {}
                 },
                 "sort": [],
                 "from": offset,
