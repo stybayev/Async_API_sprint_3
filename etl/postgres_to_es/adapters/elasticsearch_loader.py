@@ -40,9 +40,6 @@ class ElasticsearchLoader:
 
     def save_batch(self, index_name: str, batch: list[dto.Filmwork]) -> None:
         """Основной метод сохранения данных в Elasticsearch."""
-        print("QQQQQQQQQQQQQQQQQQQQQQQQ")
-        print(batch[:20])
-        print("QQQQQQQQQQQQQQQQQQQQQQQQ")
         bulk_request_data = self.prepare_bulk_request_data(batch=batch)
         self.send_request(bulk_request_data=bulk_request_data, index_name=index_name)
 
