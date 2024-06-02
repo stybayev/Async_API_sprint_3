@@ -58,6 +58,16 @@ services:
       - minio
       - db
 
+  file_api-migrations:
+    container_name: file_api-migrations
+    build: ./file_api
+    <<: *app
+    volumes:
+      - .:/file_api
+    depends_on:
+      - db
+    command: alembic -c file_api/alembic.ini upgrade head
+
   etl:
     container_name: etl
     build: ./etl/postgres_to_es

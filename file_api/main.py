@@ -4,7 +4,6 @@ from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 from file_api.api.v1 import files
 from file_api.core.config import settings
-from file_api.db.db import create_database
 from file_api.db.minio import set_minio, close_minio, create_bucket_if_not_exists
 
 
@@ -18,7 +17,6 @@ async def lifespan(app: FastAPI):
     )
     set_minio(minio_client)
     await create_bucket_if_not_exists(settings.backet_name)
-    await create_database()
 
     yield
     await close_minio()
