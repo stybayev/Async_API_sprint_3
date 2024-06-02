@@ -1,9 +1,10 @@
+from http import HTTPStatus
+
 from fastapi import APIRouter, UploadFile, HTTPException, Depends
 from starlette.responses import StreamingResponse
 
 from file_api.schemas.files import FileResponse
 from file_api.services.files import FileService, get_file_service
-from file_api.utils.exceptions import NotFoundException
 
 router = APIRouter()
 
@@ -15,7 +16,8 @@ async def upload_file(file: UploadFile,
     """
     ## Загрузка файла
 
-    Этот эндпоинт позволяет загрузить файл в указанный S3 бакет и путь. Файл сохраняется в хранилище MinIO, а метаданные файла сохраняются в базе данных PostgreSQL.
+    Этот эндпоинт позволяет загрузить файл в указанный S3 бакет и путь. Файл сохраняется в хранилище MinIO,
+    а метаданные файла сохраняются в базе данных PostgreSQL.
 
     ### Параметры:
     - **file**: Загружаемый файл.
@@ -42,7 +44,7 @@ async def upload_file(file: UploadFile,
             created=file_record.created
         )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, detail=str(e))
 
 
 @router.get("/download/{short_name}", response_class=StreamingResponse)
@@ -61,10 +63,8 @@ async def download_file(short_name: str, service: FileService = Depends(get_file
     try:
         file_record = await service.get_file_record(short_name)
         return await service.get_file(file_record.path_in_storage, file_record.filename)
-    except NotFoundException as e:
-        raise e
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, detail=str(e))
 
 
 @router.get("/presigned-url/{short_name}")
@@ -83,7 +83,5 @@ async def get_presigned_url(short_name: str, service: FileService = Depends(get_
     try:
         file_record = await service.get_file_record(short_name)
         return await service.get_presigned_url(file_record.path_in_storage)
-    except NotFoundException as e:
-        raise e
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, detail=str(e))
