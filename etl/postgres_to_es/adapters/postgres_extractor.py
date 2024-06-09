@@ -42,7 +42,7 @@ class PostgresExtractor:
             LEFT JOIN content.genre_film_work gfw ON gfw.film_work_id = fw.id
             LEFT JOIN content.genre g ON g.id = gfw.genre_id
             {}
-            GROUP BY fw.id
+            GROUP BY fw.id, fw.title, fw.description, fw.rating, fw.type, fw.file, fw.created, fw.modified
             ORDER BY fw.modified
         """.format(
             filter_query,
