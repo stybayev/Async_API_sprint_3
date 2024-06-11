@@ -21,7 +21,6 @@ ALLOWED_HOSTS = (
     else ["127.0.0.1"]
 )
 
-
 INTERNAL_IPS = (
     os.environ.get("INTERNAL_HOSTS").split(",")
     if os.environ.get("INTERNAL_HOSTS")
