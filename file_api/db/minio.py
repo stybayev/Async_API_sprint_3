@@ -17,7 +17,6 @@ def get_minio() -> Minio:
 async def close_minio() -> None:
     global client
     if client is not None:
-        await client.close()
         client = None
 
 
